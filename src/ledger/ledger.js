@@ -1,6 +1,8 @@
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import FlowApp from "@zondax/ledger-flow";
 
+var bip66 = require('bip66')
+
 const scheme = 0x301;
 const EXAMPLE_PATH = `m/44'/1'/${scheme}/0/0`;
 const SLOT = 0;
@@ -111,8 +113,6 @@ export const getAddressAndPublicKey = async () => {
 
     const rawPublicKey = convertToRawPublicKey(publicKey);
 
-    console.log("PUBKEY", rawPublicKey);
-
     return {
         address: address,
         publicKey: rawPublicKey,
@@ -166,8 +166,15 @@ export const signTransaction = async (tx) => {
         console.log(response);
     } finally {
         if (transport) transport.close();
-        return response
     }
+
+    const derSignature = response.signatureDER;
+
+    return convertToRawSignature(derSignature);
 };
 
-const convertToRawPublicKey = (publicKey) => publicKey.slice(1).toString('hex');
+const convertToRawPublicKey = (publicKey) => publicKey.slice(1).toString("hex");
+const convertToRawSignature = (derSignature) => {
+    const { r, s } = bip66.decode(derSignature);
+    return Buffer.concat([r, s]).toString("hex");
+};
