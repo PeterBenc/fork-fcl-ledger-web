@@ -1,27 +1,26 @@
 import * as fcl from "@onflow/fcl"
-import * as types from "@onflow/types"
 
-const hardwareWalletAPIAddress = 'http://localhost:8081';
-const accountsPath = '/accounts'
+const hardwareWalletAPIAddress = "http://localhost:8081";
+const accountsPath = "/accounts"
 
-const signatureAlgorithm = 'ECDSA_P256';
-const hashAlgorithm = 'SHA3_256';
+const signatureAlgorithm = "ECDSA_P256";
+const hashAlgorithm = "SHA3_256";
 
 const createAccount = async (publicKey) => {
 
-  const data = {  publicKey, signatureAlgorithm, hashAlgorithm };
+  const data = { publicKey, signatureAlgorithm, hashAlgorithm };
   const url = `${hardwareWalletAPIAddress}${accountsPath}`;
 
   const response = await fetch(url, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
     })
     .then(response => response.json())
-    .catch((error) => {
-      console.error('Error:', error);
+    .catch(error => {
+      console.error("Error:", error);
     });
 
   return response ? response.address : null;
@@ -40,8 +39,8 @@ const getAccount = async (publicKey) => {
 
       return response.json();
     })
-    .catch((error) => {
-      console.error('Error:', error);
+    .catch(error => {
+      console.error("Error:", error);
     });
 
   return response ? response.address : null;

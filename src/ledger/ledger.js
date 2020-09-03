@@ -3,6 +3,8 @@ import FlowApp from "@zondax/ledger-flow";
 
 const scheme = 0x301;
 const EXAMPLE_PATH = `m/44'/1'/${scheme}/0/0`;
+const SLOT = 0;
+const errorEmptyBuffer = 0x6982;
 
 const getTransport = async () => {
     let transport = null;
@@ -38,9 +40,7 @@ export const getVersion = async () => {
     } finally {
         if (transport) transport.close();
     }
-}
-
-const log = (l) => console.log(l)
+};
 
 export const appInfo = async () => {
     const transport = await getTransport();
@@ -61,35 +61,13 @@ export const appInfo = async () => {
     } finally {
         if (transport) transport.close();
     }
-}
+};
 
 export const getAddressAndPublicKey = async () => {
     const transport = await getTransport();
     if (!transport) return;
-    try {
-        const app = new FlowApp(transport);
 
-        let response = await app.getVersion();
-        console.log(`App Version ${response.major}.${response.minor}.${response.patch}`);
-        console.log(`Device Locked: ${response.deviceLocked}`);
-        console.log(`Test mode: ${response.testMode}`);
-
-        console.log("Sending Request..");
-        response = await app.getAddressAndPubKey(EXAMPLE_PATH);
-        if (response.returnCode !== FlowApp.ErrorCode.NoError) {
-            console.log(`Error [${response.returnCode}] ${response.errorMessage}`);
-            return;
-        }
-        return response;
-    } finally {
-        if (transport) transport.close();
-    }
-}
-
-export const getPublicKey = async () => {
-    const transport = await getTransport();
-    if (!transport) return;
-
+    let address;
     let publicKey;
 
     try {
@@ -100,16 +78,29 @@ export const getPublicKey = async () => {
         console.log(`Device Locked: ${response.deviceLocked}`);
         console.log(`Test mode: ${response.testMode}`);
 
-        // now it is possible to access all commands in the app
+        response = await app.getSlot(SLOT);
+        if (response.returnCode === FlowApp.ErrorCode.NoError) {
+            address = response.account;
+        } else if (response.returnCode !== errorEmptyBuffer) {
+            address = null;
+        } else {
+            console.log(`Error [${response.returnCode}] ${response.errorMessage}`);
+            return;
+        }
+
+        console.log("Response received! (getSlot)");
+        console.log("Full response:");
+        console.log(response);
+
         console.log("Sending Request..");
         console.log("Please click in the device");
-        response = await app.showAddressAndPubKey(EXAMPLE_PATH);
+        response = await app.getAddressAndPubKey(EXAMPLE_PATH);
         if (response.returnCode !== FlowApp.ErrorCode.NoError) {
             console.log(`Error [${response.returnCode}] ${response.errorMessage}`);
             return;
         }
 
-        console.log("Response received!");
+        console.log("Response received! (getAddressAndPubKey)");
         console.log("Full response:");
         console.log(response);
 
@@ -118,8 +109,40 @@ export const getPublicKey = async () => {
         if (transport) transport.close();
     }
 
-    return convertToRawPublicKey(publicKey);
-}
+    const rawPublicKey = convertToRawPublicKey(publicKey);
+
+    console.log("PUBKEY", rawPublicKey);
+
+    return {
+        address: address,
+        publicKey: rawPublicKey,
+    };
+};
+
+export const setAddress = async (address) => {
+    const transport = await getTransport();
+
+    try {
+        const app = new FlowApp(transport);
+
+        let response = await app.getVersion();
+        console.log(`App Version ${response.major}.${response.minor}.${response.patch}`);
+        console.log(`Device Locked: ${response.deviceLocked}`);
+        console.log(`Test mode: ${response.testMode}`);
+
+        response = await await app.setSlot(SLOT, address, EXAMPLE_PATH);
+        if (response.returnCode !== FlowApp.ErrorCode.NoError) {
+            console.log(`Error [${response.returnCode}] ${response.errorMessage}`);
+            return;
+        }
+
+        console.log("Response received!");
+        console.log("Full response:");
+        console.log(response);
+    } finally {
+        if (transport) transport.close();
+    }
+};
 
 export const signTransaction = async (tx) => {
     const transport = await getTransport();
@@ -145,6 +168,6 @@ export const signTransaction = async (tx) => {
         if (transport) transport.close();
         return response
     }
-}
+};
 
 const convertToRawPublicKey = (publicKey) => publicKey.slice(1).toString('hex');
