@@ -84,8 +84,11 @@ export const getAddressAndPublicKey = async () => {
     }
 }
 
-export const showAddress = async () => {
+export const getPublicKey = async () => {
     const transport = await getTransport();
+
+    let publicKey;
+
     try {
         const app = new FlowApp(transport);
 
@@ -106,9 +109,13 @@ export const showAddress = async () => {
         console.log("Response received!");
         console.log("Full response:");
         console.log(response);
+
+        publicKey = response.publicKey;
     } finally {
         transport.close();
     }
+
+    return convertToRawPublicKey(publicKey);
 }
 
 export const signTransaction = async (tx) => {
@@ -132,3 +139,5 @@ export const signTransaction = async (tx) => {
         transport.close();
     }
 }
+
+const convertToRawPublicKey = (publicKey) => publicKey.slice(1).toString('hex');
