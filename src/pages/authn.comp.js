@@ -1,6 +1,7 @@
-import React, {useEffect} from 'react'
+import React, {useEffect, useState} from 'react'
 import styled from 'styled-components'
-import {showAddress} from "../ledger/ledger.js"
+import {getPublicKey} from "../ledger/ledger.js"
+import {getOrCreateAccount} from "../flow/accounts";
 
 const StyledContainer = styled.div`
     display: flex;
@@ -21,17 +22,23 @@ const StyledSubtitle = styled.div`
 `
 
 export const Authn = () => {
+    const [address, setAddress] = useState("");
 
     useEffect(() => {
-        // Do Ledger Stuff to get address, otherwise create acct.
+        async function getAddress() {
+            const publicKey = await getPublicKey();
+            const address = await getOrCreateAccount(publicKey);
+            setAddress(address);
+        }
 
-        showAddress()
+        getAddress();
     }, [])
 
     return (
         <StyledContainer>
             <StyledTitle>Ledger Flow</StyledTitle>
             <StyledSubtitle>Please follow the instructions on your ledger device.</StyledSubtitle>
+            <div>Address: {address}</div>
         </StyledContainer>    
     )
 }
