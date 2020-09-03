@@ -26,7 +26,7 @@ export const getVersion = async () => {
         const response = await app.getVersion();
         if (response.returnCode !== FlowApp.ErrorCode.NoError) {
             console.log(`Error [${response.returnCode}] ${response.errorMessage}`);
-        return;
+            return;
         }
 
         console.log("Response received!");
@@ -36,7 +36,7 @@ export const getVersion = async () => {
         console.log("Full response:");
         console.log(response);
     } finally {
-        transport.close();
+        if (transport) transport.close();
     }
 }
 
@@ -44,6 +44,7 @@ const log = (l) => console.log(l)
 
 export const appInfo = async () => {
     const transport = await getTransport();
+    if (!transport) return;
     try {
         const app = new FlowApp(transport);
 
@@ -52,18 +53,19 @@ export const appInfo = async () => {
         const response = await app.appInfo();
         if (response.returnCode !== FlowApp.ErrorCode.NoError) {
             console.log(`Error [${response.returnCode}] ${response.errorMessage}`);
-        return;
+            return;
         }
 
         console.log("Response received!");
         console.log(response);
     } finally {
-        transport.close();
+        if (transport) transport.close();
     }
 }
 
 export const getAddressAndPublicKey = async () => {
     const transport = await getTransport();
+    if (!transport) return;
     try {
         const app = new FlowApp(transport);
 
@@ -80,12 +82,13 @@ export const getAddressAndPublicKey = async () => {
         }
         return response;
     } finally {
-        transport.close();
+        if (transport) transport.close();
     }
 }
 
 export const getPublicKey = async () => {
     const transport = await getTransport();
+    if (!transport) return;
 
     let publicKey;
 
@@ -112,7 +115,7 @@ export const getPublicKey = async () => {
 
         publicKey = response.publicKey;
     } finally {
-        transport.close();
+        if (transport) transport.close();
     }
 
     return convertToRawPublicKey(publicKey);
@@ -120,13 +123,16 @@ export const getPublicKey = async () => {
 
 export const signTransaction = async (tx) => {
     const transport = await getTransport();
+    if (!transport) return;
+
+    let response;
     try {
         const app = new FlowApp(transport);
 
-        let response = await app.getVersion();
-        console.log(`App Version ${response.major}.${response.minor}.${response.patch}`);
-        console.log(`Device Locked: ${response.deviceLocked}`);
-        console.log(`Test mode: ${response.testMode}`);
+        let version = await app.getVersion();
+        console.log(`App Version ${version.major}.${version.minor}.${version.patch}`);
+        console.log(`Device Locked: ${version.deviceLocked}`);
+        console.log(`Test mode: ${version.testMode}`);
 
         const message = Buffer.from(tx, "hex");
         console.log("Sending Request..");
@@ -136,7 +142,8 @@ export const signTransaction = async (tx) => {
         console.log("Full response:");
         console.log(response);
     } finally {
-        transport.close();
+        if (transport) transport.close();
+        return response
     }
 }
 
