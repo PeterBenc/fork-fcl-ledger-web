@@ -111,14 +111,3 @@ export const Authz = () => {
       </StyledContainer>    
   )
 }
-
-
-const msg = {
-  jsonrpc: "2.0",
-  id: "asdf",
-  result: {
-    addr: "ba1132bc08f82fe2",
-    keyId: 1,
-    signature: "asdfasdfasdfasdfasdfasdfasdfasdfasdfasdf", // hex
-  },
-}
