@@ -1,3 +1,6 @@
+import * as fcl from "@onflow/fcl"
+import * as types from "@onflow/types"
+
 const hardwareWalletAPIAddress = 'http://localhost:8081';
 const accountsPath = '/accounts'
 
@@ -21,7 +24,7 @@ const createAccount = async (publicKey) => {
       console.error('Error:', error);
     });
 
-  return response.address;
+  return response ? response.address : null;
 };
 
 const getAccount = async (publicKey) => {
@@ -41,7 +44,7 @@ const getAccount = async (publicKey) => {
       console.error('Error:', error);
     });
 
-  return response.address;
+  return response ? response.address : null;
 }
 
 export const getOrCreateAccount = async (publicKey) => {
@@ -52,4 +55,19 @@ export const getOrCreateAccount = async (publicKey) => {
   }
 
   return await createAccount(publicKey);
+};
+
+export const getKeyIdForKeyByAccountAddress = async (address, publicKey) => {
+
+  const response = await fcl.send([
+    fcl.getAccount(fcl.sansPrefix(address))
+  ])
+
+  const account = await fcl.decode(response)
+
+  const key = account.keys.find(k => k.publicKey === publicKey)
+
+  if (!key) return -1;
+
+  return key.index
 };

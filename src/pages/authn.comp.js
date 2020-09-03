@@ -1,7 +1,8 @@
 import React, {useEffect, useState} from 'react'
 import styled from 'styled-components'
+import {useLocation} from "react-router-dom"
 import {getPublicKey} from "../ledger/ledger.js"
-import {getOrCreateAccount} from "../flow/accounts";
+import {getOrCreateAccount, getKeyIdForKeyByAccountAddress} from "../flow/accounts";
 
 const StyledContainer = styled.div`
     display: flex;
@@ -21,24 +22,82 @@ const StyledSubtitle = styled.div`
     text-align: center;
 `
 
+const StyledButton = styled.button`
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  margin-top: 2rem;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 1rem 2rem 1rem 2rem;
+  font-size: 1rem;
+  text-align: center;
+  cursor: pointer;
+`
+
 export const Authn = () => {
-    const [address, setAddress] = useState("");
+    const l6n = new URLSearchParams(useLocation().search).get("l6n")
+    const [message, setMessage] = useState("Please connect and unlock your Ledger device, open the Flow app and then press start.")
+    const [hasUserStarted, setHasUserStarted] = useState(false)
 
     useEffect(() => {
-        async function getAddress() {
-            const publicKey = await getPublicKey();
-            const address = await getOrCreateAccount(publicKey);
-            setAddress(address);
-        }
+        (async function getAddress() {
+            if (!hasUserStarted) return;
 
-        getAddress();
-    }, [])
+            setMessage("Please follow the instructions on your Ledger device.");
+
+            const publicKey = await getPublicKey()
+            const address = await getOrCreateAccount(publicKey)
+
+            if (!publicKey || !address) {
+              setMessage("Please connect and unlock your Ledger device, open the Flow app and then press start.")
+              setHasUserStarted(false)
+              return
+            }
+ 
+            setMessage("Address: " + address)
+
+            const keyId = await getKeyIdForKeyByAccountAddress(address, publicKey)
+
+            const msg = {
+              addr: address,  
+              paddr: null,    
+              hks: null,       
+              code: null,      
+              services: [      
+                {
+                  type: "authz",
+                  method: "IFRAME/RPC",
+                  id: "fcl-ledger-authz",
+                  addr: address,
+                  keyId: keyId,
+                  endpoint: `${window.location.hostname}/local/authz`,
+                  params: {
+                    address: address,
+                    keyId: keyId,
+                    sessionId: "UXfZXdUzU",
+                  },
+                },
+                {
+                  type: "authn",
+                  addr: address,
+                  pid: address,
+                  id: "fcl-ledger-authn",
+                  name: "Flow Ledger",
+                  authn: `${window.location.hostname}/local/authn`,
+                  icon: "",
+                },
+              ],
+            }
+
+            window.parent.postMessage(msg, msg.l6n)
+        })();
+    }, [hasUserStarted])
 
     return (
         <StyledContainer>
             <StyledTitle>Ledger Flow</StyledTitle>
-            <StyledSubtitle>Please follow the instructions on your ledger device.</StyledSubtitle>
-            <div>Address: {address}</div>
+            <StyledSubtitle>{message}</StyledSubtitle>
+            {!hasUserStarted && <StyledButton onClick={() => setHasUserStarted(true)}>Start</StyledButton>}
         </StyledContainer>    
     )
 }
