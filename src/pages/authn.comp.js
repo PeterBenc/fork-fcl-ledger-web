@@ -16,7 +16,6 @@ const StyledMessage = styled.div`
 `
 
 export const Authn = () => {
-    const l6n = new URLSearchParams(useLocation().search).get("l6n")
     const [message, setMessage] = useState("");
     const [account, setAccount] = useState(null);
 
@@ -26,11 +25,17 @@ export const Authn = () => {
 
             const { address, publicKey } = account;
 
+            if (!publicKey || !address) {
+              setMessage("Please connect and unlock your Ledger device, open the Flow app and then press start.")
+              return
+            }
+
             setMessage("Please follow the instructions on your Ledger device.")
 
             const keyId = await getKeyIdForKeyByAccountAddress(address, publicKey)
 
             const msg = {
+              type: "FCL::CHALLENGE::RESPONSE",
               addr: address,  
               paddr: null,    
               hks: null,       
@@ -42,7 +47,7 @@ export const Authn = () => {
                   id: "fcl-ledger-authz",
                   addr: address,
                   keyId: keyId,
-                  endpoint: `${window.location.hostname}/local/authz`,
+                  endpoint: `${window.location.origin}/local/authz`,
                   params: {
                     address: address,
                     keyId: keyId,
@@ -55,13 +60,13 @@ export const Authn = () => {
                   pid: address,
                   id: "fcl-ledger-authn",
                   name: "Flow Ledger",
-                  authn: `${window.location.hostname}/local/authn`,
+                  authn: `${window.location.origin}/local/authn`,
                   icon: "",
                 },
               ],
             }
 
-            window.parent.postMessage(msg, msg.l6n)
+            window.parent.postMessage(msg, "*")
         })();
     }, [account])
 

@@ -25,6 +25,7 @@ const GlobalStyle = createGlobalStyle`
     --font-family:"MonoLisa","JetBrains Mono","Fira Code",monospace;
   }
   body {
+    background-color: white;
     color: var(--text-primary);
     font-family: var(--font-family);
     font-size: 16px;

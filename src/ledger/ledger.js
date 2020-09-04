@@ -196,8 +196,9 @@ export const signTransaction = async (tx) => {
         const message = Buffer.from(tx, "hex");
         console.log("Sending Request..");
         const response = await app.sign(PATH_ADDRESS, message);
+        console.log('Sign response: ', response);
         if (response.returnCode !== FlowApp.ErrorCode.NoError) {
-            console.log(`Error [${response.returnCode}] ${response.errorMessage}`);
+            console.error(`Error [${response.returnCode}] ${response.errorMessage}`);
             return;
         }
 
