@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="198px" height="38px" viewBox="0 0 198 38" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>ledger-nano-s-success-onb</title>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="ledger-nano-s-success-onb" transform="translate(1.000000, 0.000000)">
+            <g id="Group" transform="translate(98.500000, 18.500000) rotate(-90.000000) translate(-98.500000, -18.500000) translate(80.500000, -79.500000)">
+                <rect id="Rectangle" fill="#000000" fill-rule="nonzero" x="32.2037209" y="12.7153975" width="3.65627907" height="14.0398326" rx="1.82813953"></rect>
+                <rect id="Rectangle" fill="#000000" fill-rule="nonzero" x="32.2037209" y="57.4829456" width="3.65627907" height="14.0398326" rx="1.82813953"></rect>
+                <g id="b-link" transform="translate(-0.000000, 0.000000)" fill="#FFFFFF" fill-rule="nonzero">
+                    <rect id="b" x="0" y="0" width="33.950814" height="195.494828" rx="4"></rect>
+                </g>
+                <rect id="Rectangle" stroke="#000000" stroke-width="2" fill-rule="nonzero" x="0.813953488" y="0.820083682" width="32.322907" height="193.854661" rx="4"></rect>
+                <rect id="Rectangle" stroke="#000000" fill="#FFFFFF" fill-rule="nonzero" x="9" y="17" width="16.4223256" height="50.0406862" rx="1.6"></rect>
+                <path d="M16.975814,78.7001506 C8.05,78.7001506 0.813953488,85.9906946 0.813953488,94.9837322 L0.813953488,192.214494 C0.813953488,193.573253 1.90721166,194.674745 3.25581395,194.674745 L30.695,194.674745 C32.0436023,194.674745 33.1368605,193.573253 33.1368605,192.214494 L33.1368605,94.9837322 C33.1368605,85.9906946 25.900814,78.7001506 16.975814,78.7001506 Z" id="Path" stroke="#000000" stroke-width="2" fill="#535353" fill-rule="nonzero"></path>
+                <ellipse id="Oval" stroke="#000000" fill="#FFFFFF" cx="17.1060465" cy="95.2305774" rx="8.60348837" ry="8.72897071"></ellipse>
+                <text id="LEDGER" transform="translate(17.000000, 126.500000) rotate(-270.000000) translate(-17.000000, -126.500000) " font-family="Lato-Semibold, Lato" font-size="8" font-weight="500" letter-spacing="0.4" fill="#FFFFFF">
+                    <tspan x="0.5" y="129.5">LEDGER</tspan>
+                </text>
+                <text id="FLOW" transform="translate(17.000000, 41.500000) rotate(-270.000000) translate(-17.000000, -41.500000) " font-family="Lato-Bold, Lato" font-size="8" font-weight="bold" letter-spacing="0.4" fill="#000000">
+                    <tspan x="4.5" y="44.5">FLOW</tspan>
+                </text>
+            </g>
+        </g>
+    </g>
+</svg>
