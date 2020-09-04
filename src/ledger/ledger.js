@@ -6,7 +6,6 @@ var bip66 = require('bip66')
 const scheme = 0x301;
 const EXAMPLE_PATH = `m/44'/1'/${scheme}/0/0`;
 const SLOT = 0;
-const errorEmptyBuffer = 0x6982;
 
 const getTransport = async () => {
     let transport = null;
@@ -83,7 +82,7 @@ export const getAddressAndPublicKey = async () => {
         response = await app.getSlot(SLOT);
         if (response.returnCode === FlowApp.ErrorCode.NoError) {
             address = response.account;
-        } else if (response.returnCode !== errorEmptyBuffer) {
+        } else if (response.returnCode === FlowApp.ErrorCode.EmptyBuffer) {
             address = null;
         } else {
             console.log(`Error [${response.returnCode}] ${response.errorMessage}`);
@@ -148,7 +147,8 @@ export const signTransaction = async (tx) => {
     const transport = await getTransport();
     if (!transport) return;
 
-    let response;
+    let signature;
+
     try {
         const app = new FlowApp(transport);
 
@@ -159,18 +159,22 @@ export const signTransaction = async (tx) => {
 
         const message = Buffer.from(tx, "hex");
         console.log("Sending Request..");
-        response = await app.sign(EXAMPLE_PATH, message);
-
+        const response = await app.sign(EXAMPLE_PATH, message);
+        if (response.returnCode !== FlowApp.ErrorCode.NoError) {
+            console.log(`Error [${response.returnCode}] ${response.errorMessage}`);
+            return;
+        }
+        
         console.log("Response received!");
         console.log("Full response:");
         console.log(response);
+
+        signature = response.signatureDER;
     } finally {
         if (transport) transport.close();
     }
 
-    const derSignature = response.signatureDER;
-
-    return convertToRawSignature(derSignature);
+    return convertToRawSignature(signature);
 };
 
 const convertToRawPublicKey = (publicKey) => publicKey.slice(1).toString("hex");
