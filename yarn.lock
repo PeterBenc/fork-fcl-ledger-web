@@ -1253,10 +1253,10 @@
   dependencies:
     rlp "^2.2.4"
 
-"@onflow/fcl@0.0.55-debug.16":
-  version "0.0.55-debug.16"
-  resolved "https://registry.yarnpkg.com/@onflow/fcl/-/fcl-0.0.55-debug.16.tgz#c7b2eb4ef467e7f96080547eb95ca988587f83c2"
-  integrity sha512-eK3tyzbS0KbVSEKLbtFOvSrGq+YPzoMUn23K2IaUjLCAwvh3H5ibjputJM2EEUq9XlCZAFQWYZnhPTSYnTZfBw==
+"@onflow/fcl@0.0.56":
+  version "0.0.56"
+  resolved "https://registry.yarnpkg.com/@onflow/fcl/-/fcl-0.0.56.tgz#533d24d06c45527f5211ee831a3101c41e9dae9b"
+  integrity sha512-lIbJTOn80GZ2WoAEeWYLO+xSZjRqhnlW1cmgR70jiH6cCOCzED8mN0OqLz3v58F2gxVD3FpeJ3r2PH5SMxLuOg==
   dependencies:
     "@onflow/config" "0.0.2"
     "@onflow/sdk" "0.0.31"
