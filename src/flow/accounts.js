@@ -4,7 +4,7 @@ const hardwareWalletAPIAddress = "http://localhost:8081";
 const accountsPath = "/accounts"
 
 const signatureAlgorithm = "ECDSA_P256";
-const hashAlgorithm = "SHA3_256";
+const hashAlgorithm = "SHA2_256";
 
 const createAccount = async (publicKey) => {
 
