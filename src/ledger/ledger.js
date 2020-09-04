@@ -6,6 +6,7 @@ var bip66 = require('bip66')
 const scheme = 0x301;
 const EXAMPLE_PATH = `m/44'/1'/${scheme}/0/0`;
 const SLOT = 0;
+const errorCodeEmptyBuffer = 0x6982;
 
 const getTransport = async () => {
     let transport = null;
@@ -82,7 +83,7 @@ export const getAddressAndPublicKey = async () => {
         response = await app.getSlot(SLOT);
         if (response.returnCode === FlowApp.ErrorCode.NoError) {
             address = response.account;
-        } else if (response.returnCode === FlowApp.ErrorCode.EmptyBuffer) {
+        } else if (response.returnCode === errorCodeEmptyBuffer) {
             address = null;
         } else {
             console.log(`Error [${response.returnCode}] ${response.errorMessage}`);
@@ -164,7 +165,7 @@ export const signTransaction = async (tx) => {
             console.log(`Error [${response.returnCode}] ${response.errorMessage}`);
             return;
         }
-        
+
         console.log("Response received!");
         console.log("Full response:");
         console.log(response);
