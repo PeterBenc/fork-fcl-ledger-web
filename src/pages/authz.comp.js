@@ -1,12 +1,9 @@
 import React, {useEffect, useState} from 'react'
 import styled from 'styled-components'
 import {useLocation} from "react-router-dom"
-import {getOrCreateAccount, getKeyIdForKeyByAccountAddress} from "../flow/accounts";
-import {
-  getAddressAndPublicKey as getAddressAndPublicKeyOnDevice, 
-  setAddress as setAddressOnDevice,
-  signTransaction,
-} from "../ledger/ledger.js";
+import {signTransaction} from "../ledger/ledger.js";
+import {getKeyIdForKeyByAccountAddress} from "../flow/accounts.js";
+import {getAccount} from "../integration/integration.js";
 
 const StyledContainer = styled.div`
     display: flex;
@@ -69,17 +66,8 @@ export const Authz = () => {
 
           setMessage("Please follow the instructions on your Ledger device.");
 
-          const { address: existingAddress, publicKey } = await getAddressAndPublicKeyOnDevice();
-            
-          let address;
-
-          if (existingAddress) {
-              address = existingAddress;
-          } else {
-              address = await getOrCreateAccount(publicKey);
-              await setAddressOnDevice(address);
-          }
-
+          const { address, publicKey } = await getAccount();
+          
           if (!publicKey || !address) {
             setMessage("Please connect and unlock your Ledger device, open the Flow app and then press start.")
             setHasUserStarted(false)
