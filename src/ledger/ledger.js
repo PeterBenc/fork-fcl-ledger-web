@@ -3,9 +3,11 @@ import FlowApp from "@zondax/ledger-flow";
 
 var bip66 = require('bip66')
 
-const scheme = 0x301;
-const EXAMPLE_PATH = `m/44'/1'/${scheme}/0/0`;
+const SCHEME = 0x301;
+const PATH_ADDRESS = `m/44'/1'/${SCHEME}/0/0`;
+const PATH_CLEAR = "m/0/0/0/0/0 ";
 const SLOT = 0;
+
 const errorCodeEmptyBuffer = 0x6982;
 
 const getTransport = async () => {
@@ -66,6 +68,8 @@ export const appInfo = async () => {
 };
 
 export const getAddressAndPublicKey = async () => {
+    console.log("LEDGER.getAddressAndPublicKey")
+
     const transport = await getTransport();
     if (!transport) return;
 
@@ -96,7 +100,7 @@ export const getAddressAndPublicKey = async () => {
 
         console.log("Sending Request..");
         console.log("Please click in the device");
-        response = await app.getAddressAndPubKey(EXAMPLE_PATH);
+        response = await app.getAddressAndPubKey(PATH_ADDRESS);
         if (response.returnCode !== FlowApp.ErrorCode.NoError) {
             console.log(`Error [${response.returnCode}] ${response.errorMessage}`);
             return;
@@ -119,7 +123,9 @@ export const getAddressAndPublicKey = async () => {
     };
 };
 
-export const setAddress = async (address) => {
+export const setAddress = async (address) => {    
+    console.log("LEDGER.setAddress")
+
     const transport = await getTransport();
 
     try {
@@ -130,7 +136,34 @@ export const setAddress = async (address) => {
         console.log(`Device Locked: ${response.deviceLocked}`);
         console.log(`Test mode: ${response.testMode}`);
 
-        response = await await app.setSlot(SLOT, address, EXAMPLE_PATH);
+        response = await await app.setSlot(SLOT, address, PATH_ADDRESS);
+        if (response.returnCode !== FlowApp.ErrorCode.NoError) {
+            console.log(`Error [${response.returnCode}] ${response.errorMessage}`);
+            return;
+        }
+
+        console.log("Response received!");
+        console.log("Full response:");
+        console.log(response);
+    } finally {
+        if (transport) transport.close();
+    }
+};
+
+export const clearAddress = async () => {
+    console.log("LEDGER.clearAddress")
+
+    const transport = await getTransport();
+
+    try {
+        const app = new FlowApp(transport);
+
+        let response = await app.getVersion();
+        console.log(`App Version ${response.major}.${response.minor}.${response.patch}`);
+        console.log(`Device Locked: ${response.deviceLocked}`);
+        console.log(`Test mode: ${response.testMode}`);
+
+        response = await await app.setSlot(SLOT, "0000000000000000", PATH_CLEAR);
         if (response.returnCode !== FlowApp.ErrorCode.NoError) {
             console.log(`Error [${response.returnCode}] ${response.errorMessage}`);
             return;
@@ -145,6 +178,8 @@ export const setAddress = async (address) => {
 };
 
 export const signTransaction = async (tx) => {
+    console.log("LEDGER.signTransaction")
+
     const transport = await getTransport();
     if (!transport) return;
 
@@ -160,7 +195,7 @@ export const signTransaction = async (tx) => {
 
         const message = Buffer.from(tx, "hex");
         console.log("Sending Request..");
-        const response = await app.sign(EXAMPLE_PATH, message);
+        const response = await app.sign(PATH_ADDRESS, message);
         if (response.returnCode !== FlowApp.ErrorCode.NoError) {
             console.log(`Error [${response.returnCode}] ${response.errorMessage}`);
             return;

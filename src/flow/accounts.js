@@ -6,7 +6,7 @@ const accountsPath = "/accounts"
 const signatureAlgorithm = "ECDSA_P256";
 const hashAlgorithm = "SHA2_256";
 
-const createAccount = async (publicKey) => {
+export const createAccount = async (publicKey) => {
 
   const data = { publicKey, signatureAlgorithm, hashAlgorithm };
   const url = `${hardwareWalletAPIAddress}${accountsPath}`;
@@ -26,7 +26,7 @@ const createAccount = async (publicKey) => {
   return response ? response.address : null;
 };
 
-const getAccount = async (publicKey) => {
+export const getAccount = async (publicKey) => {
 
   const params = new URLSearchParams({ publicKey });
   const url = `${hardwareWalletAPIAddress}${accountsPath}?${params}`;
@@ -45,16 +45,6 @@ const getAccount = async (publicKey) => {
 
   return response ? response.address : null;
 }
-
-export const getOrCreateAccount = async (publicKey) => {
-  const existingAddress = await getAccount(publicKey);
-
-  if (existingAddress) {
-    return existingAddress;
-  }
-
-  return await createAccount(publicKey);
-};
 
 export const getKeyIdForKeyByAccountAddress = async (address, publicKey) => {
 
