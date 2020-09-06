@@ -1256,7 +1256,6 @@
 "@onflow/fcl@0.0.56":
   version "0.0.56"
   resolved "https://registry.yarnpkg.com/@onflow/fcl/-/fcl-0.0.56.tgz#533d24d06c45527f5211ee831a3101c41e9dae9b"
-  integrity sha512-lIbJTOn80GZ2WoAEeWYLO+xSZjRqhnlW1cmgR70jiH6cCOCzED8mN0OqLz3v58F2gxVD3FpeJ3r2PH5SMxLuOg==
   dependencies:
     "@onflow/config" "0.0.2"
     "@onflow/sdk" "0.0.31"
@@ -2349,12 +2348,6 @@ bindings@^1.5.0:
   resolved "https://registry.yarnpkg.com/bindings/-/bindings-1.5.0.tgz#10353c9e945334bc0511a6d90b38fbc7c9c504df"
   dependencies:
     file-uri-to-path "1.0.0"
-
-bip66@^1.1.5:
-  version "1.1.5"
-  resolved "https://registry.yarnpkg.com/bip66/-/bip66-1.1.5.tgz#01fa8748785ca70955d5011217d1b3139969ca22"
-  dependencies:
-    safe-buffer "^5.0.1"
 
 block-stream@*:
   version "0.0.9"

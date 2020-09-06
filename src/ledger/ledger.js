@@ -1,8 +1,6 @@
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import FlowApp from "@zondax/ledger-flow";
 
-var bip66 = require('bip66')
-
 const SCHEME = 0x301;
 const PATH_ADDRESS = `m/44'/1'/${SCHEME}/0/0`;
 const PATH_CLEAR = "m/0/0/0/0/0 ";
@@ -206,7 +204,7 @@ export const signTransaction = async (tx) => {
         console.log("Full response:");
         console.log(response);
 
-        signature = response.signatureDER;
+        signature = response.signatureCompact;
     } finally {
         if (transport) transport.close();
     }
@@ -214,8 +212,8 @@ export const signTransaction = async (tx) => {
     return convertToRawSignature(signature);
 };
 
+// remove leading byte from public key
 const convertToRawPublicKey = (publicKey) => publicKey.slice(1).toString("hex");
-const convertToRawSignature = (derSignature) => {
-    const { r, s } = bip66.decode(derSignature);
-    return Buffer.concat([r, s]).toString("hex");
-};
+
+// remove 65th byte from signature
+const convertToRawSignature = (signature) => signature.slice(0, -1).toString("hex");
