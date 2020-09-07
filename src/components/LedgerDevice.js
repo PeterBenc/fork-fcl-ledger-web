@@ -84,7 +84,17 @@ const LedgerDevice = ({ account, onGetAccount }) => {
         if (!hasUserStarted) return;
         if (address || publicKey) return;
 
-        let { address: existingAddress, publicKey: existingPublicKey } = await getAddressAndPublicKeyOnDevice();
+        let existingAddress;
+        let existingPublicKey;
+        try {
+          let { address, publicKey } = await getAddressAndPublicKeyOnDevice();
+          existingAddress = address;
+          existingPublicKey = publicKey;
+
+        } catch(e) {
+          setHasUserStarted(false)
+          return
+        }
       
         if (!existingAddress) {
           existingAddress = await getAccount(existingPublicKey);
