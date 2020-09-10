@@ -1,6 +1,6 @@
 import * as fcl from "@onflow/fcl"
 
-const hardwareWalletAPIAddress = "http://localhost:8081";
+const hardwareWalletAPIHost = process.env.REACT_APP_WALLET_API_HOST || "http://localhost:8081";
 const accountsPath = "/accounts"
 
 const signatureAlgorithm = "ECDSA_P256";
@@ -9,7 +9,7 @@ const hashAlgorithm = "SHA2_256";
 export const createAccount = async (publicKey) => {
 
   const data = { publicKey, signatureAlgorithm, hashAlgorithm };
-  const url = `${hardwareWalletAPIAddress}${accountsPath}`;
+  const url = `${hardwareWalletAPIHost}${accountsPath}`;
 
   const response = await fetch(url, {
       method: "POST",
@@ -29,7 +29,7 @@ export const createAccount = async (publicKey) => {
 export const getAccount = async (publicKey) => {
 
   const params = new URLSearchParams({ publicKey });
-  const url = `${hardwareWalletAPIAddress}${accountsPath}?${params}`;
+  const url = `${hardwareWalletAPIHost}${accountsPath}?${params}`;
 
   const response = await fetch(url)
     .then(response => {
