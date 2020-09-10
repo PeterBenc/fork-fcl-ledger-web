@@ -21,3 +21,16 @@ make run
 ```shell script
 yarn run start
 ```
+
+## Building & publishing
+
+```shell script
+# build the React app
+yarn run build-staging
+
+# build the Docker image
+docker build -t gcr.io/dl-flow/fcl-ledger-web-staging .
+
+# publish the Docker image
+docker push gcr.io/dl-flow/fcl-ledger-web-staging
+```
