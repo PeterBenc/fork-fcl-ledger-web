@@ -44,8 +44,12 @@ ReactDOM.render(
       <Route path="/testnet" component={TestnetConfig} />
       <Route path="/mainnet" component={MainnetConfig} />
       <Switch>
-        <Route path={/\/((local)|(testnet)|(mainnet))(\/authn)/gm} component={Authn} exact />
-        <Route path={/\/((local)|(testnet)|(mainnet))(\/authz)/gm} component={Authz} exact />
+        <Route path="/local/authn" component={props => <Authn {...props} network="local"/>} exact />
+        <Route path="/testnet/authn" component={props => <Authn {...props} network="testnet"/>} exact />
+        <Route path="/mainnet/authn" component={props => <Authn {...props} network="mainnet"/>} exact />
+        <Route path="/local/authz" component={props => <Authz {...props} network="local" />} exact />
+        <Route path="/testnet/authz" component={props => <Authz {...props} network="testnet" />} exact />
+        <Route path="/mainnet/authz" component={props => <Authz {...props} network="mainnet" />} exact />
         <Route component={FourOhFour} />
       </Switch>
     </Router>

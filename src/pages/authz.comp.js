@@ -16,7 +16,7 @@ const StyledMessage = styled.div`
     text-align: center;
 `
 
-export const Authz = () => {
+export const Authz = ({ network = "local" }) => {
   const [id, setId] = useState(null)
   const [signable, setSignable] = useState("")
   const [paramsFromConfig, setParamsFromConfig] = useState(null)

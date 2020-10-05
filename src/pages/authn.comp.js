@@ -15,7 +15,7 @@ const StyledMessage = styled.div`
     text-align: center;
 `
 
-export const Authn = () => {
+export const Authn = ({ network = "local" }) => {
     const [message, setMessage] = useState("");
     const [account, setAccount] = useState(null);
 
@@ -47,7 +47,7 @@ export const Authn = () => {
                   id: "fcl-ledger-authz",
                   addr: address,
                   keyId: keyId,
-                  endpoint: `${window.location.origin}/local/authz`,
+                  endpoint: `${window.location.origin}/${network}/authz`,
                   params: {
                     address: address,
                     keyId: keyId,
@@ -60,7 +60,7 @@ export const Authn = () => {
                   pid: address,
                   id: "fcl-ledger-authn",
                   name: "Flow Ledger",
-                  authn: `${window.location.origin}/local/authn`,
+                  authn: `${window.location.origin}/${network}/authn`,
                   icon: "",
                 },
               ],
