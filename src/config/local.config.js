@@ -1,11 +1,12 @@
-  
 import {useEffect} from "react"
 import {config} from "@onflow/config"
+
+const EMULATOR_HOST = process.env.REACT_APP_EMULATOR_HOST || "http://localhost:8080";
 
 export function LocalConfig() {
   useEffect(() => {
     config()
-      .put("accessNode.api", "http://localhost:8080")
+      .put("accessNode.api", EMULATOR_HOST)
   }, [])
   return null
 }

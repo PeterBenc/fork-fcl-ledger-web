@@ -21,3 +21,31 @@ make run
 ```shell script
 yarn run start
 ```
+
+## Building & publishing
+
+### Emulator
+
+```shell script
+# build the React app
+yarn run build-emulator
+
+# build the Docker image
+docker build -t gcr.io/dl-flow/fcl-ledger-web-emulator .
+
+# publish the Docker image
+docker push gcr.io/dl-flow/fcl-ledger-web-emulator
+```
+
+### Testnet
+
+```shell script
+# build the React app
+yarn run build-testnet
+
+# build the Docker image
+docker build -t gcr.io/dl-flow/fcl-ledger-web-testnet .
+
+# publish the Docker image
+docker push gcr.io/dl-flow/fcl-ledger-web-testnet
+```
