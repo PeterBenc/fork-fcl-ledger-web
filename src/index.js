@@ -22,7 +22,7 @@ const GlobalStyle = createGlobalStyle`
   :root {
     --text-primary: #0F0F0F;
     --text-secondary: #0B0B0B;
-    --font-family:"MonoLisa","JetBrains Mono","Fira Code",monospace;
+    --font-family:"Inter",sans-serif;
   }
   body {
     background-color: white;

@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react'
 import styled from 'styled-components'
-import LedgerNanoS from "../images/ledger-nano-s.svg";
+import FlowLogo from "../images/logo.svg";
 import {getAccount, createAccount} from "../flow/accounts";
 import {
   getAddressAndPublicKey as getAddressAndPublicKeyOnDevice, 
@@ -26,6 +26,21 @@ const Centered = styled.div`
   margin-bottom: 1rem;
 `;
 
+const Row = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+`
+
+const LedgerTitle = styled.div`
+  margin-left: 0.5rem;
+  transform: translateY(4px);
+  font-weight: 400;
+  font-size: 2rem;
+  text-decoration: none;
+  color: #2a2825;
+`
+
 const LedgerImage = styled.img`
   height: 4rem;
 `;
@@ -44,7 +59,7 @@ const ViewStart = ({ setHasUserStarted, clearAddress }) => {
     <Centered>
       <Message>Please unlock your Ledger device and open the Flow app.</Message>
       <Button onClick={() => setHasUserStarted()}>Connect</Button>
-      <Text style={{marginTop: "2rem"}}>🛠️ DEBUG STUFF:</Text>
+      <Text style={{marginTop: "2rem"}}>🛠️ DEBUG:</Text>
       <Button onClick={() => clearAddress()}>Clear Address</Button>
     </Centered>
   );
@@ -116,7 +131,7 @@ const LedgerDevice = ({ account, onGetAccount }) => {
   return (
     <div>
       <Centered>
-        <LedgerImage src={LedgerNanoS} />
+        <Row><LedgerImage src={FlowLogo} /><LedgerTitle>Ledger</LedgerTitle></Row>
         <Text>{address && `Address: ${address}`}</Text>
       </Centered>
       <Centered>
