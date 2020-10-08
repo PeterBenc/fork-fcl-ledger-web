@@ -900,7 +900,7 @@
   dependencies:
     regenerator-runtime "^0.13.4"
 
-"@babel/runtime@^7.1.2", "@babel/runtime@^7.10.2", "@babel/runtime@^7.10.3", "@babel/runtime@^7.5.1", "@babel/runtime@^7.5.5":
+"@babel/runtime@^7.1.2", "@babel/runtime@^7.10.2", "@babel/runtime@^7.10.3", "@babel/runtime@^7.10.5", "@babel/runtime@^7.5.1", "@babel/runtime@^7.5.5":
   version "7.11.2"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.11.2.tgz#f549c13c754cc40b87644b9fa9f09a6a95fe0736"
   dependencies:
@@ -1201,9 +1201,21 @@
     "@ledgerhq/logs" "^5.22.0"
     rxjs "^6.6.2"
 
+"@ledgerhq/devices@^5.25.0":
+  version "5.25.0"
+  resolved "https://registry.yarnpkg.com/@ledgerhq/devices/-/devices-5.25.0.tgz#c9522d7495e7be41fad59eb7d5e4e3e1030fd205"
+  dependencies:
+    "@ledgerhq/errors" "^5.25.0"
+    "@ledgerhq/logs" "^5.25.0"
+    rxjs "^6.6.3"
+
 "@ledgerhq/errors@^5.22.0":
   version "5.22.0"
   resolved "https://registry.yarnpkg.com/@ledgerhq/errors/-/errors-5.22.0.tgz#7327fc152d4896ddc26aada0943065db21c14880"
+
+"@ledgerhq/errors@^5.25.0":
+  version "5.25.0"
+  resolved "https://registry.yarnpkg.com/@ledgerhq/errors/-/errors-5.25.0.tgz#2a24b7ad6a88719046de4fcdf0b4c27b9ba79523"
 
 "@ledgerhq/hw-transport-webusb@^5.22.0":
   version "5.22.0"
@@ -1214,7 +1226,15 @@
     "@ledgerhq/hw-transport" "^5.22.0"
     "@ledgerhq/logs" "^5.22.0"
 
-"@ledgerhq/hw-transport@^5.17.0", "@ledgerhq/hw-transport@^5.22.0":
+"@ledgerhq/hw-transport@^5.19.1":
+  version "5.25.0"
+  resolved "https://registry.yarnpkg.com/@ledgerhq/hw-transport/-/hw-transport-5.25.0.tgz#e04e2130fedcb433ee68f25125e6ac49efa0aede"
+  dependencies:
+    "@ledgerhq/devices" "^5.25.0"
+    "@ledgerhq/errors" "^5.25.0"
+    events "^3.2.0"
+
+"@ledgerhq/hw-transport@^5.22.0":
   version "5.22.0"
   resolved "https://registry.yarnpkg.com/@ledgerhq/hw-transport/-/hw-transport-5.22.0.tgz#d627948b43005ec9e7dfe85adf9aa01e130de280"
   dependencies:
@@ -1225,6 +1245,10 @@
 "@ledgerhq/logs@^5.22.0":
   version "5.22.0"
   resolved "https://registry.yarnpkg.com/@ledgerhq/logs/-/logs-5.22.0.tgz#a54d6b5b391cdb4c2eacc9500feb04b90475c361"
+
+"@ledgerhq/logs@^5.25.0":
+  version "5.25.0"
+  resolved "https://registry.yarnpkg.com/@ledgerhq/logs/-/logs-5.25.0.tgz#94dd930a33fd05e3897532f554e31397a45247b6"
 
 "@mrmlnc/readdir-enhanced@^2.2.1":
   version "2.2.1"
@@ -1266,6 +1290,13 @@
 "@onflow/interaction@0.0.10":
   version "0.0.10"
   resolved "https://registry.yarnpkg.com/@onflow/interaction/-/interaction-0.0.10.tgz#0809aba2ac3a4b1a7c97de4089e38bbf8d5794b8"
+
+"@onflow/ledger@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@onflow/ledger/-/ledger-0.1.0.tgz#a309ebedbe685ec9a1f3bda1f60b2ceb716f36d2"
+  dependencies:
+    "@babel/runtime" "^7.10.5"
+    "@ledgerhq/hw-transport" "^5.19.1"
 
 "@onflow/protobuf@0.1.6":
   version "0.1.6"
@@ -1788,13 +1819,6 @@
 "@xtuc/long@4.2.2":
   version "4.2.2"
   resolved "https://registry.yarnpkg.com/@xtuc/long/-/long-4.2.2.tgz#d291c6a4e97989b5c61d9acf396ae4fe133a718d"
-
-"@zondax/ledger-flow@^0.0.1":
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/@zondax/ledger-flow/-/ledger-flow-0.0.1.tgz#b8cb4edd73981e134821eee2563d081c8dbde672"
-  dependencies:
-    "@babel/runtime" "^7.10.3"
-    "@ledgerhq/hw-transport" "^5.17.0"
 
 abab@^2.0.0:
   version "2.0.3"
@@ -8489,6 +8513,12 @@ rxjs@^6.5.3:
 rxjs@^6.6.2:
   version "6.6.2"
   resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-6.6.2.tgz#8096a7ac03f2cc4fe5860ef6e572810d9e01c0d2"
+  dependencies:
+    tslib "^1.9.0"
+
+rxjs@^6.6.3:
+  version "6.6.3"
+  resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-6.6.3.tgz#8ca84635c4daa900c0d3967a6ee7ac60271ee552"
   dependencies:
     tslib "^1.9.0"
 

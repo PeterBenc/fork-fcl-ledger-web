@@ -1,5 +1,5 @@
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
-import FlowApp from "@zondax/ledger-flow";
+import FlowApp from "@onflow/ledger";
 
 const SCHEME = 0x301;
 const PATH_ADDRESS = `m/44'/1'/${SCHEME}/0/0`;
