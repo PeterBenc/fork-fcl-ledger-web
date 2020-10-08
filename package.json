@@ -18,10 +18,10 @@
     "styled-components": "^5.1.1"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "REACT_APP_DEBUG=true react-scripts start",
     "build": "react-scripts build",
-    "build-emulator": "REACT_APP_EMULATOR_HOST=https://ledger-demo-emulator-http.staging.onflow.org REACT_APP_WALLET_API_HOST=https://hardware-wallet-api-emulator.staging.onflow.org react-scripts build",
-    "build-testnet": "REACT_APP_WALLET_API_HOST=https://hardware-wallet-api-testnet.staging.onflow.org react-scripts build",
+    "build-emulator": "REACT_APP_DEBUG=true REACT_APP_EMULATOR_HOST=https://ledger-demo-emulator-http.staging.onflow.org REACT_APP_WALLET_API_HOST=https://hardware-wallet-api-emulator.staging.onflow.org react-scripts build",
+    "build-testnet": "REACT_APP_DEBUG=true REACT_APP_WALLET_API_HOST=https://hardware-wallet-api-testnet.staging.onflow.org react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

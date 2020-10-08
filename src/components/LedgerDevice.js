@@ -54,13 +54,21 @@ const Message = styled.div`
   margin-bottom: 2rem;
 `;
 
-const ViewStart = ({ setHasUserStarted, clearAddress }) => {
+const ViewDebug = ({ clearAddress }) => {
+  return (
+    <>
+      <Text style={{marginTop: "2rem"}}>🛠️ DEBUG:</Text>
+      <Button onClick={() => clearAddress()}>Clear Address</Button>
+    </>
+  );
+};
+
+const ViewStart = ({ setHasUserStarted, clearAddress, debug }) => {
   return (
     <Centered>
       <Message>Please unlock your Ledger device and open the Flow app.</Message>
       <Button onClick={() => setHasUserStarted()}>Connect</Button>
-      <Text style={{marginTop: "2rem"}}>🛠️ DEBUG:</Text>
-      <Button onClick={() => clearAddress()}>Clear Address</Button>
+      {debug && <ViewDebug clearAddress={clearAddress} />}
     </Centered>
   );
 };
@@ -76,13 +84,11 @@ const ViewGetAddress = ({ setAddress, publicKey }) => {
     <Centered>
       <Message>Please choose an option to initialize Flow on your Ledger device.</Message>
       <Button onClick={() => createNewAccount()}>Create New Account</Button>
-      <Text>OR</Text>
-      <Button>Enter Existing Address</Button>
     </Centered>
   );
 };
 
-const LedgerDevice = ({ account, onGetAccount }) => {
+const LedgerDevice = ({ account, onGetAccount, debug }) => {
   const [hasUserStarted, setHasUserStarted] = useState(false);
   const [address, setAddress] = useState(null);
   const [publicKey, setPublicKey] = useState(null);
@@ -137,7 +143,10 @@ const LedgerDevice = ({ account, onGetAccount }) => {
       <Centered>
         {
           !hasUserStarted && 
-            <ViewStart setHasUserStarted={() => setHasUserStarted(true)} clearAddress={() => clearAddressOnDevice()} />
+            <ViewStart 
+              setHasUserStarted={() => setHasUserStarted(true)} 
+              clearAddress={() => clearAddressOnDevice()}
+              debug={debug} />
         }
         {
           hasUserStarted && publicKey && !address && 
