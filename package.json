@@ -22,6 +22,7 @@
     "build": "react-scripts build",
     "build-emulator": "REACT_APP_EMULATOR_HOST=https://ledger-demo-emulator-http.staging.onflow.org REACT_APP_WALLET_API_HOST=https://hardware-wallet-api-emulator.staging.onflow.org react-scripts build",
     "build-testnet": "REACT_APP_WALLET_API_HOST=https://hardware-wallet-api-testnet.staging.onflow.org react-scripts build",
+    "build-mainnet": "REACT_APP_WALLET_API_HOST=https://hardware-wallet-api-mainnet.onflow.org react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

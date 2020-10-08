@@ -49,3 +49,16 @@ docker build -t gcr.io/dl-flow/fcl-ledger-web-testnet .
 # publish the Docker image
 docker push gcr.io/dl-flow/fcl-ledger-web-testnet
 ```
+
+### Mainnet
+
+```shell script
+# build the React app
+yarn run build-mainnet
+
+# build the Docker image
+docker build -t gcr.io/dl-flow/fcl-ledger-web-mainnet .
+
+# publish the Docker image
+docker push gcr.io/dl-flow/fcl-ledger-web-mainnet
+```
