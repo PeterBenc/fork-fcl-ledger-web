@@ -22,7 +22,7 @@ const GlobalStyle = createGlobalStyle`
   :root {
     --text-primary: #0F0F0F;
     --text-secondary: #0B0B0B;
-    --font-family:"MonoLisa","JetBrains Mono","Fira Code",monospace;
+    --font-family:"Inter",sans-serif;
   }
   body {
     background-color: white;
@@ -34,6 +34,8 @@ const GlobalStyle = createGlobalStyle`
   }
 `
 
+const DEBUG = process.env.REACT_APP_DEBUG || false;
+
 const FourOhFour = () => <div>404</div>
 
 ReactDOM.render(
@@ -44,12 +46,12 @@ ReactDOM.render(
       <Route path="/testnet" component={TestnetConfig} />
       <Route path="/mainnet" component={MainnetConfig} />
       <Switch>
-        <Route path="/local/authn" component={props => <Authn {...props} network="local"/>} exact />
-        <Route path="/testnet/authn" component={props => <Authn {...props} network="testnet"/>} exact />
-        <Route path="/mainnet/authn" component={props => <Authn {...props} network="mainnet"/>} exact />
-        <Route path="/local/authz" component={props => <Authz {...props} network="local" />} exact />
-        <Route path="/testnet/authz" component={props => <Authz {...props} network="testnet" />} exact />
-        <Route path="/mainnet/authz" component={props => <Authz {...props} network="mainnet" />} exact />
+        <Route path="/local/authn" component={props => <Authn {...props} network="local" debug={DEBUG} />} exact />
+        <Route path="/testnet/authn" component={props => <Authn {...props} network="testnet" debug={DEBUG} />} exact />
+        <Route path="/mainnet/authn" component={props => <Authn {...props} network="mainnet" debug={DEBUG} />} exact />
+        <Route path="/local/authz" component={props => <Authz {...props} network="local" debug={DEBUG} />} exact />
+        <Route path="/testnet/authz" component={props => <Authz {...props} network="testnet" debug={DEBUG} />} exact />
+        <Route path="/mainnet/authz" component={props => <Authz {...props} network="mainnet" debug={DEBUG} />} exact />
         <Route component={FourOhFour} />
       </Switch>
     </Router>
