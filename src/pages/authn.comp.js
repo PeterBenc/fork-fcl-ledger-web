@@ -15,7 +15,7 @@ const StyledMessage = styled.div`
     text-align: center;
 `
 
-export const Authn = ({ network = "local" }) => {
+export const Authn = ({ network = "local", debug }) => {
     const [message, setMessage] = useState("");
     const [account, setAccount] = useState(null);
 
@@ -72,7 +72,10 @@ export const Authn = ({ network = "local" }) => {
 
     return (
         <StyledContainer>
-            <LedgerDevice account={account} onGetAccount={account => setAccount(account)} />
+            <LedgerDevice 
+              account={account} 
+              onGetAccount={account => setAccount(account)}
+              debug={debug} />
             <StyledMessage>{message}</StyledMessage>
         </StyledContainer>    
     )
