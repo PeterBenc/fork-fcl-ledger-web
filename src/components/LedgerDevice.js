@@ -48,10 +48,12 @@ const LedgerImage = styled.img`
 const Text = styled.div`
   height: 3rem;
   line-height: 3rem;
+  text-align: center;
 `;
 
 const Message = styled.div`
   margin-bottom: 2rem;
+  text-align: center;
 `;
 
 const ViewDebug = ({ clearAddress }) => {
