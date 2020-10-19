@@ -7,6 +7,7 @@ export function LocalConfig() {
   useEffect(() => {
     config()
       .put("accessNode.api", EMULATOR_HOST)
+      .put("hardwareWallet.api", "http://localhost:8081")
   }, [])
   return null
 }
