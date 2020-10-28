@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@ledgerhq/hw-transport-webusb": "^5.22.0",
-    "@onflow/fcl": "0.0.56",
+    "@onflow/fcl": "0.0.60",
     "@onflow/ledger": "^0.1.0",
     "@onflow/types": "^0.0.4",
     "@testing-library/jest-dom": "^4.2.4",

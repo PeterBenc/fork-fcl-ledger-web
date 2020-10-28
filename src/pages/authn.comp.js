@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react'
 import styled from 'styled-components'
+import * as fcl from "@onflow/fcl"
 import {useLocation} from "react-router-dom"
 import {getKeyIdForKeyByAccountAddress} from "../flow/accounts";
 import LedgerDevice from '../components/LedgerDevice';
@@ -15,7 +16,7 @@ const StyledMessage = styled.div`
     text-align: center;
 `
 
-export const Authn = ({ network = "local", debug }) => {
+export const Authn = ({ network = "local" }) => {
     const [message, setMessage] = useState("");
     const [account, setAccount] = useState(null);
 
@@ -36,7 +37,7 @@ export const Authn = ({ network = "local", debug }) => {
 
             const msg = {
               type: "FCL::CHALLENGE::RESPONSE",
-              addr: address,  
+              addr: fcl.withPrefix(address),  
               paddr: null,    
               hks: null,       
               code: null,      
@@ -45,19 +46,19 @@ export const Authn = ({ network = "local", debug }) => {
                   type: "authz",
                   method: "IFRAME/RPC",
                   id: "fcl-ledger-authz",
-                  addr: address,
+                  addr: fcl.withPrefix(address),
                   keyId: keyId,
                   endpoint: `${window.location.origin}/${network}/authz`,
                   params: {
-                    address: address,
+                    address: fcl.withPrefix(address),
                     keyId: keyId,
                     sessionId: "UXfZXdUzU",
                   },
                 },
                 {
                   type: "authn",
-                  addr: address,
-                  pid: address,
+                  addr: null,
+                  pid: fcl.withPrefix(address),
                   id: "fcl-ledger-authn",
                   name: "Flow Ledger",
                   authn: `${window.location.origin}/${network}/authn`,
@@ -72,10 +73,7 @@ export const Authn = ({ network = "local", debug }) => {
 
     return (
         <StyledContainer>
-            <LedgerDevice 
-              account={account} 
-              onGetAccount={account => setAccount(account)}
-              debug={debug} />
+            <LedgerDevice account={account} onGetAccount={account => setAccount(account)} />
             <StyledMessage>{message}</StyledMessage>
         </StyledContainer>    
     )
