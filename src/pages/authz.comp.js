@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react'
 import styled from 'styled-components'
+import * as fcl from "@onflow/fcl"
 import {useLocation} from "react-router-dom"
 import {signTransaction} from "../ledger/ledger.js";
 import {getKeyIdForKeyByAccountAddress} from "../flow/accounts.js";
@@ -82,7 +83,7 @@ export const Authz = ({ network = "local" }) => {
               status: "APPROVED",
               reason: null,
               compositeSignature: {
-                addr: address,
+                addr: fcl.withPrefix(address),
                 keyId: keyId,
                 signature: signature,
               },
