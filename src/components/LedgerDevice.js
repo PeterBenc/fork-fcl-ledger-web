@@ -97,8 +97,8 @@ const LedgerDevice = ({ account, onGetAccount, debug }) => {
 
   const setNewAddress = async (address, publicKey) => {
     await setAddressOnDevice(address);
-    onGetAccount({ address, publicKey });
     setAddress(address);
+    onGetAccount({ address, publicKey });
   };
 
   useEffect(() => {
