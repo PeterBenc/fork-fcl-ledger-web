@@ -35,6 +35,13 @@ export const Authz = ({ network = "local" }) => {
         setParamsFromConfig(paramsFromConfig)
       }
     })
+
+    window.postMessage(
+      {
+        type: "FCL::AUTHZ_READY",
+      },
+      "*"
+    )
   }, [])
 
   useEffect(() => {

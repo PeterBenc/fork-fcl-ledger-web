@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react'
 import styled from 'styled-components'
+import * as fcl from "@onflow/fcl"
 import FlowLogo from "../images/logo.svg";
 import {getAccount, createAccount} from "../flow/accounts";
 import {
@@ -140,7 +141,7 @@ const LedgerDevice = ({ account, onGetAccount, debug }) => {
     <div>
       <Centered>
         <Row><LedgerImage src={FlowLogo} /><LedgerTitle>Ledger</LedgerTitle></Row>
-        <Text>{address && `Address: ${address}`}</Text>
+        <Text>{address && `Address: ${fcl.withPrefix(address)}`}</Text>
       </Centered>
       <Centered>
         {
