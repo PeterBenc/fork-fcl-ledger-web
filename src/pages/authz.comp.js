@@ -18,13 +18,6 @@ const StyledMessage = styled.div`
   text-align: center;
 `
 
-const StyledClose = styled(FaTimes)`
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  height: 1rem;
-`
-
 export const Authz = ({ network = "local" }) => {
   const [id, setId] = useState(null)
   const [signable, setSignable] = useState("")
@@ -123,7 +116,7 @@ export const Authz = ({ network = "local" }) => {
 
   return (
       <StyledContainer>
-        <LedgerDevice account={account} onGetAccount={account => setAccount(account)} />
+        <LedgerDevice account={account} onGetAccount={account => setAccount(account)} handleCancel={handleCancel} />
         <StyledMessage>{message}</StyledMessage>
       </StyledContainer>    
   )

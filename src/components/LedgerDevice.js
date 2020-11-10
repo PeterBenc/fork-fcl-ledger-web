@@ -91,7 +91,7 @@ const ViewGetAddress = ({ setAddress, publicKey }) => {
   );
 };
 
-const LedgerDevice = ({ account, onGetAccount, handleCancel = () => {}, debug }) => {
+const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
   const [hasUserStarted, setHasUserStarted] = useState(false);
   const [address, setAddress] = useState(null);
   const [publicKey, setPublicKey] = useState(null);
