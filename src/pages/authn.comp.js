@@ -20,6 +20,12 @@ export const Authn = ({ network = "local" }) => {
     const [message, setMessage] = useState("");
     const [account, setAccount] = useState(null);
 
+    const handleCancel = () => {
+      window.parent.postMessage({
+        type: "FCL::CHALLENGE::CANCEL"
+      }, "*")
+    }
+
     useEffect(() => {
         (async function getAddress() {
             if (!account) return;
@@ -73,7 +79,7 @@ export const Authn = ({ network = "local" }) => {
 
     return (
         <StyledContainer>
-            <LedgerDevice account={account} onGetAccount={account => setAccount(account)} />
+            <LedgerDevice account={account} onGetAccount={account => setAccount(account)} handleCancel={handleCancel} />
             <StyledMessage>{message}</StyledMessage>
         </StyledContainer>    
     )

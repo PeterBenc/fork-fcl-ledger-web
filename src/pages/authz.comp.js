@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import styled from 'styled-components'
 import * as fcl from "@onflow/fcl"
+import {FaTimes} from "react-icons/fa"
 import {useLocation} from "react-router-dom"
 import {signTransaction} from "../ledger/ledger.js";
 import {getKeyIdForKeyByAccountAddress} from "../flow/accounts.js";
@@ -13,8 +14,8 @@ const StyledContainer = styled.div`
 `
 
 const StyledMessage = styled.div`
-    font-size: 1rem;
-    text-align: center;
+  font-size: 1rem;
+  text-align: center;
 `
 
 export const Authz = ({ network = "local" }) => {
@@ -24,6 +25,18 @@ export const Authz = ({ network = "local" }) => {
   
   const [message, setMessage] = useState("");
   const [account, setAccount] = useState(null);
+
+  const handleCancel = () => {
+    const msg = {
+      jsonrpc: "2.0",
+      id: id,
+      result: {
+        status: "DECLINED",
+        reason: "Ledger device did not sign this transaction."
+      },
+    }
+    window.parent.postMessage(msg, "*")
+  }
 
   useEffect(() => {
     window.addEventListener("message", ({ data }) => {
@@ -35,6 +48,13 @@ export const Authz = ({ network = "local" }) => {
         setParamsFromConfig(paramsFromConfig)
       }
     })
+
+    window.postMessage(
+      {
+        type: "FCL::AUTHZ_READY",
+      },
+      "*"
+    )
   }, [])
 
   useEffect(() => {
@@ -96,7 +116,7 @@ export const Authz = ({ network = "local" }) => {
 
   return (
       <StyledContainer>
-        <LedgerDevice account={account} onGetAccount={account => setAccount(account)} />
+        <LedgerDevice account={account} onGetAccount={account => setAccount(account)} handleCancel={handleCancel} />
         <StyledMessage>{message}</StyledMessage>
       </StyledContainer>    
   )

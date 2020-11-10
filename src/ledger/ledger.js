@@ -137,6 +137,7 @@ export const setAddress = async (address) => {
         response = await await app.setSlot(SLOT, address, PATH_ADDRESS);
         if (response.returnCode !== FlowApp.ErrorCode.NoError) {
             console.log(`Error [${response.returnCode}] ${response.errorMessage}`);
+            throw new Error();
             return;
         }
 
@@ -174,6 +175,27 @@ export const clearAddress = async () => {
         if (transport) transport.close();
     }
 };
+
+export const showAddressAndPubKey = async () => {
+    console.log("LEDGER.showAddress")
+
+    const transport = await getTransport();
+    
+    try {
+        const app = new FlowApp(transport);
+
+        let response = await app.showAddressAndPubKey(PATH_ADDRESS);
+        console.log(`App Version ${response.major}.${response.minor}.${response.patch}`);
+        console.log(`Device Locked: ${response.deviceLocked}`);
+        console.log(`Test mode: ${response.testMode}`);
+
+        console.log("Response received!");
+        console.log("Full response:");
+        console.log(response);
+    } finally {
+        if (transport) transport.close();
+    }
+}
 
 export const signTransaction = async (tx) => {
     console.log("LEDGER.signTransaction")
