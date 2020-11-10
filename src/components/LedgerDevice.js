@@ -91,7 +91,7 @@ const ViewGetAddress = ({ setAddress, publicKey }) => {
   );
 };
 
-const LedgerDevice = ({ account, onGetAccount, debug }) => {
+const LedgerDevice = ({ account, onGetAccount, handleCancel = () => {}, debug }) => {
   const [hasUserStarted, setHasUserStarted] = useState(false);
   const [address, setAddress] = useState(null);
   const [publicKey, setPublicKey] = useState(null);
@@ -123,7 +123,11 @@ const LedgerDevice = ({ account, onGetAccount, debug }) => {
         if (!existingAddress) {
           existingAddress = await getAccount(existingPublicKey);
           if (existingAddress) {
-            await setAddressOnDevice(existingAddress);
+            try {
+              await setAddressOnDevice(existingAddress);
+            } catch (e) {
+              handleCancel()
+            }
           }
         }
   

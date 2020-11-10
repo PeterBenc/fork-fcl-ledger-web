@@ -137,6 +137,7 @@ export const setAddress = async (address) => {
         response = await await app.setSlot(SLOT, address, PATH_ADDRESS);
         if (response.returnCode !== FlowApp.ErrorCode.NoError) {
             console.log(`Error [${response.returnCode}] ${response.errorMessage}`);
+            throw new Error();
             return;
         }
 
