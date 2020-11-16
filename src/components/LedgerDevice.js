@@ -69,18 +69,21 @@ const ViewDebug = ({ clearAddress }) => {
 const ViewStart = ({ setHasUserStarted, clearAddress, debug }) => {
   return (
     <Centered>
-      <Message>Please unlock your Ledger device and open the Flow app.</Message>
+      <Message>Please connect and unlock your Ledger device and open the Flow app.</Message>
       <Button onClick={() => setHasUserStarted()}>Connect</Button>
       {debug && <ViewDebug clearAddress={clearAddress} />}
     </Centered>
   );
 };
 
-const ViewGetAddress = ({ setAddress, publicKey }) => {
+const ViewGetAddress = ({ setAddress, setMessage, message, publicKey }) => {
 
   const createNewAccount = async () => {
+    setMessage("Please wait...")
     const address = await createAccount(publicKey);
+    setMessage("Please approve the new address on your device.")
     setAddress(address);
+    setMessage(null)
   };
 
   return (
@@ -95,6 +98,7 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
   const [hasUserStarted, setHasUserStarted] = useState(false);
   const [address, setAddress] = useState(null);
   const [publicKey, setPublicKey] = useState(null);
+  const [message, setMessage] = useState(null);
 
   const setNewAddress = async (address, publicKey) => {
     await setAddressOnDevice(address);
@@ -124,7 +128,9 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
           existingAddress = await getAccount(existingPublicKey);
           if (existingAddress) {
             try {
+              setMessage("Please approve the new address on your device.")
               await setAddressOnDevice(existingAddress);
+              setMessage(null)
             } catch (e) {
               handleCancel()
             }
@@ -159,6 +165,11 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
           hasUserStarted && publicKey && !address && 
             <ViewGetAddress setAddress={(address) => setNewAddress(address, publicKey)} publicKey={publicKey} />
         }
+        {
+          hasUserStarted && !(publicKey && !address) && 
+            <Text>Retrieving Your Flow Account</Text>
+        }
+        { message && <Text>{message}</Text> }
       </Centered>
     </div>
   );
