@@ -8,7 +8,7 @@ import LedgerDevice from '../components/LedgerDevice';
 const StyledContainer = styled.div`
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
 `
 
 const StyledMessage = styled.div`
@@ -17,7 +17,6 @@ const StyledMessage = styled.div`
 `
 
 export const Authn = ({ network = "local" }) => {
-    const [message, setMessage] = useState("");
     const [account, setAccount] = useState(null);
 
     const handleCancel = () => {
@@ -33,11 +32,8 @@ export const Authn = ({ network = "local" }) => {
             const { address, publicKey } = account;
 
             if (!publicKey || !address) {
-              setMessage("Please connect and unlock your Ledger device, open the Flow app and then press start.")
               return
             }
-
-            setMessage("Please follow the instructions on your Ledger device.")
 
             const keyId = await getKeyIdForKeyByAccountAddress(address, publicKey)
 
@@ -80,7 +76,6 @@ export const Authn = ({ network = "local" }) => {
     return (
         <StyledContainer>
             <LedgerDevice account={account} onGetAccount={account => setAccount(account)} handleCancel={handleCancel} />
-            <StyledMessage>{message}</StyledMessage>
         </StyledContainer>    
     )
 }

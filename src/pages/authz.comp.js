@@ -13,6 +13,7 @@ const StyledContainer = styled.div`
 `
 
 const StyledMessage = styled.div`
+  width: 100%;
   font-size: 1rem;
   text-align: center;
 `
@@ -26,6 +27,7 @@ export const Authz = ({ network = "local" }) => {
   const [account, setAccount] = useState(null);
 
   const handleCancel = () => {
+    setMessage("Please connect and unlock your Ledger device, open the Flow app and then press start.")
     const msg = {
       jsonrpc: "2.0",
       id: id,

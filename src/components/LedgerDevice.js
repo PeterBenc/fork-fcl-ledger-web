@@ -47,8 +47,7 @@ const LedgerImage = styled.img`
 `;
 
 const Text = styled.div`
-  height: 3rem;
-  line-height: 3rem;
+  min-height: 3rem;
   text-align: center;
 `;
 
@@ -69,24 +68,26 @@ const ViewDebug = ({ clearAddress }) => {
 const ViewStart = ({ setHasUserStarted, clearAddress, debug }) => {
   return (
     <Centered>
-      <Message>Please unlock your Ledger device and open the Flow app.</Message>
+      <Message>Please connect and unlock your Ledger device and open the Flow app.</Message>
       <Button onClick={() => setHasUserStarted()}>Connect</Button>
       {debug && <ViewDebug clearAddress={clearAddress} />}
     </Centered>
   );
 };
 
-const ViewGetAddress = ({ setAddress, publicKey }) => {
+const ViewGetAddress = ({ setNewAddress, isCreatingAccount, setIsCreatingAccount, setMessage, publicKey }) => {
 
   const createNewAccount = async () => {
+    setIsCreatingAccount(true);
+    setMessage("Please wait a few moments. The account creation request is being processed.")
     const address = await createAccount(publicKey);
-    setAddress(address);
+    setNewAddress(address);
   };
 
   return (
     <Centered>
-      <Message>Please choose an option to initialize Flow on your Ledger device.</Message>
-      <Button onClick={() => createNewAccount()}>Create New Account</Button>
+      { !isCreatingAccount && <Message>Please choose an option to initialize Flow on your Ledger device.</Message> }
+      { !isCreatingAccount && <Button onClick={() => createNewAccount()}>Create New Account</Button> }
     </Centered>
   );
 };
@@ -95,9 +96,19 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
   const [hasUserStarted, setHasUserStarted] = useState(false);
   const [address, setAddress] = useState(null);
   const [publicKey, setPublicKey] = useState(null);
+  const [message, setMessage] = useState(null);
+  const [isCreatingAccount, setIsCreatingAccount] = useState(false);
 
   const setNewAddress = async (address, publicKey) => {
-    await setAddressOnDevice(address);
+    try {
+      setMessage("Please verify the new address on your device.")
+      await setAddressOnDevice(address);
+      setMessage(null);
+    } catch (e) {
+      setIsCreatingAccount(false);
+      handleCancel();
+    }
+
     setAddress(address);
     onGetAccount({ address, publicKey });
   };
@@ -115,8 +126,12 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
           existingAddress = address;
           existingPublicKey = publicKey;
 
+          if (message === "Sorry, we couldn't connect to your Ledger. Please ensure that your Ledger is connected and the Flow app is open.") {
+            setMessage(null);
+          }
         } catch(e) {
           setHasUserStarted(false)
+          setMessage("Sorry, we couldn't connect to your Ledger. Please ensure that your Ledger is connected and the Flow app is open.")
           return
         }
       
@@ -124,7 +139,9 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
           existingAddress = await getAccount(existingPublicKey);
           if (existingAddress) {
             try {
+              setMessage("Please verify the new address on your device.")
               await setAddressOnDevice(existingAddress);
+              setMessage(null)
             } catch (e) {
               handleCancel()
             }
@@ -157,8 +174,13 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
         }
         {
           hasUserStarted && publicKey && !address && 
-            <ViewGetAddress setAddress={(address) => setNewAddress(address, publicKey)} publicKey={publicKey} />
+            <ViewGetAddress isCreatingAccount={isCreatingAccount} setIsCreatingAccount={setIsCreatingAccount} setNewAddress={(address) => setNewAddress(address, publicKey)} setMessage={setMessage} publicKey={publicKey} />
         }
+        {
+          hasUserStarted && !(publicKey && !address) && 
+            <Text>Retrieving Your Flow Account</Text>
+        }
+        { message && <Text>{message}</Text> }
       </Centered>
     </div>
   );
