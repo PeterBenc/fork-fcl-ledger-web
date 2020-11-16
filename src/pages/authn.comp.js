@@ -75,7 +75,7 @@ export const Authn = ({ network = "local" }) => {
 
     return (
         <StyledContainer>
-            <LedgerDevice account={account} setMessage={setMessage} onGetAccount={account => setAccount(account)} handleCancel={handleCancel} />
+            <LedgerDevice account={account} onGetAccount={account => setAccount(account)} handleCancel={handleCancel} />
         </StyledContainer>    
     )
 }
