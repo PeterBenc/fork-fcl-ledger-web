@@ -97,7 +97,7 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
   const [address, setAddress] = useState(null);
   const [publicKey, setPublicKey] = useState(null);
   const [message, setMessage] = useState(null);
-  const [isCreatingAccount, setIsCreatingAccount] = useStatus(false);
+  const [isCreatingAccount, setIsCreatingAccount] = useState(false);
 
   const setNewAddress = async (address, publicKey) => {
     try {
