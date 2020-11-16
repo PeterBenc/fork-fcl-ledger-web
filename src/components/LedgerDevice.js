@@ -47,8 +47,7 @@ const LedgerImage = styled.img`
 `;
 
 const Text = styled.div`
-  height: 3rem;
-  line-height: 3rem;
+  min-height: 3rem;
   text-align: center;
 `;
 
@@ -111,6 +110,7 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
         if (account) return;
         if (!hasUserStarted) return;
         if (address || publicKey) return;
+        setMessage(null);
 
         let existingAddress;
         let existingPublicKey;
@@ -121,6 +121,7 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
 
         } catch(e) {
           setHasUserStarted(false)
+          setMessage("Sorry, we couldn't connect to your Ledger. Please ensure your Ledger is connected and the Flow app is open.")
           return
         }
       
@@ -163,7 +164,7 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
         }
         {
           hasUserStarted && publicKey && !address && 
-            <ViewGetAddress setAddress={(address) => setNewAddress(address, publicKey)} publicKey={publicKey} />
+            <ViewGetAddress setAddress={(address) => setNewAddress(address, publicKey)} setMessage={setMessage} publicKey={publicKey} />
         }
         {
           hasUserStarted && !(publicKey && !address) && 
