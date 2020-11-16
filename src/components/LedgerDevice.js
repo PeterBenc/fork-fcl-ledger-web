@@ -76,10 +76,10 @@ const ViewStart = ({ setHasUserStarted, clearAddress, debug }) => {
   );
 };
 
-const ViewGetAddress = ({ setAddress, setMessage, message, publicKey }) => {
+const ViewGetAddress = ({ setAddress, setMessage, publicKey }) => {
 
   const createNewAccount = async () => {
-    setMessage("Please wait...")
+    setMessage("Please wait a few moments. The Account Creation request is being processed.")
     const address = await createAccount(publicKey);
     setMessage("Please approve the new address on your device.")
     setAddress(address);

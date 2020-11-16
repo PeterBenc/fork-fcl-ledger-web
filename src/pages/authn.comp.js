@@ -17,11 +17,9 @@ const StyledMessage = styled.div`
 `
 
 export const Authn = ({ network = "local" }) => {
-    const [message, setMessage] = useState("");
     const [account, setAccount] = useState(null);
 
     const handleCancel = () => {
-      setMessage("Please connect and unlock your Ledger device, open the Flow app and then press start.")
       window.parent.postMessage({
         type: "FCL::CHALLENGE::CANCEL"
       }, "*")
@@ -78,7 +76,6 @@ export const Authn = ({ network = "local" }) => {
     return (
         <StyledContainer>
             <LedgerDevice account={account} setMessage={setMessage} onGetAccount={account => setAccount(account)} handleCancel={handleCancel} />
-            {/* <StyledMessage>{message}</StyledMessage> */}
         </StyledContainer>    
     )
 }
