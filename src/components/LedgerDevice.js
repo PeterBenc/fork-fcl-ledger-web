@@ -75,11 +75,10 @@ const ViewStart = ({ setHasUserStarted, clearAddress, debug }) => {
   );
 };
 
-const ViewGetAddress = ({ setNewAddress, setMessage, publicKey }) => {
+const ViewGetAddress = ({ setNewAddress, isCreatingAccount, setIsCreatingAccount, setMessage, publicKey }) => {
 
-  let creatingAccount = false;
   const createNewAccount = async () => {
-    creatingAccount = true;
+    setIsCreatingAccount(true);
     setMessage("Please wait a few moments. The account creation request is being processed.")
     const address = await createAccount(publicKey);
     setNewAddress(address);
@@ -87,8 +86,8 @@ const ViewGetAddress = ({ setNewAddress, setMessage, publicKey }) => {
 
   return (
     <Centered>
-      { !creatingAccount && <Message>Please choose an option to initialize Flow on your Ledger device.</Message> }
-      { !creatingAccount && <Button onClick={() => createNewAccount()}>Create New Account</Button> }
+      { !isCreatingAccount && <Message>Please choose an option to initialize Flow on your Ledger device.</Message> }
+      { !isCreatingAccount && <Button onClick={() => createNewAccount()}>Create New Account</Button> }
     </Centered>
   );
 };
@@ -98,14 +97,16 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
   const [address, setAddress] = useState(null);
   const [publicKey, setPublicKey] = useState(null);
   const [message, setMessage] = useState(null);
+  const [isCreatingAccount, setIsCreatingAccount] = useStatus(false);
 
   const setNewAddress = async (address, publicKey) => {
     try {
       setMessage("Please verify the new address on your device.")
       await setAddressOnDevice(address);
-      setMessage(null)
+      setMessage(null);
     } catch (e) {
-      handleCancel()
+      setIsCreatingAccount(false);
+      handleCancel();
     }
 
     setAddress(address);
@@ -170,7 +171,7 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
         }
         {
           hasUserStarted && publicKey && !address && 
-            <ViewGetAddress setNewAddress={(address) => setNewAddress(address, publicKey)} setMessage={setMessage} publicKey={publicKey} />
+            <ViewGetAddress isCreatingAccount={isCreatingAccount} setIsCreatingAccount={setIsCreatingAccount} setNewAddress={(address) => setNewAddress(address, publicKey)} setMessage={setMessage} publicKey={publicKey} />
         }
         {
           hasUserStarted && !(publicKey && !address) && 
