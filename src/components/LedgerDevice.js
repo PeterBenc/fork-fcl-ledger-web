@@ -75,20 +75,20 @@ const ViewStart = ({ setHasUserStarted, clearAddress, debug }) => {
   );
 };
 
-const ViewGetAddress = ({ setAddress, setMessage, publicKey }) => {
+const ViewGetAddress = ({ setNewAddress, setMessage, publicKey }) => {
 
+  let creatingAccount = false;
   const createNewAccount = async () => {
-    setMessage("Please wait a few moments. The Account Creation request is being processed.")
+    creatingAccount = true;
+    setMessage("Please wait a few moments. The account creation request is being processed.")
     const address = await createAccount(publicKey);
-    setMessage("Please approve the new address on your device.")
-    setAddress(address);
-    setMessage(null)
+    setNewAddress(address);
   };
 
   return (
     <Centered>
-      <Message>Please choose an option to initialize Flow on your Ledger device.</Message>
-      <Button onClick={() => createNewAccount()}>Create New Account</Button>
+      { !creatingAccount && <Message>Please choose an option to initialize Flow on your Ledger device.</Message> }
+      { !creatingAccount && <Button onClick={() => createNewAccount()}>Create New Account</Button> }
     </Centered>
   );
 };
@@ -100,7 +100,14 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
   const [message, setMessage] = useState(null);
 
   const setNewAddress = async (address, publicKey) => {
-    await setAddressOnDevice(address);
+    try {
+      setMessage("Please verify the new address on your device.")
+      await setAddressOnDevice(address);
+      setMessage(null)
+    } catch (e) {
+      handleCancel()
+    }
+
     setAddress(address);
     onGetAccount({ address, publicKey });
   };
@@ -110,7 +117,6 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
         if (account) return;
         if (!hasUserStarted) return;
         if (address || publicKey) return;
-        setMessage(null);
 
         let existingAddress;
         let existingPublicKey;
@@ -121,7 +127,7 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
 
         } catch(e) {
           setHasUserStarted(false)
-          setMessage("Sorry, we couldn't connect to your Ledger. Please ensure your Ledger is connected and the Flow app is open.")
+          setMessage("Sorry, we couldn't connect to your Ledger. Please ensure that your Ledger is connected and the Flow app is open.")
           return
         }
       
@@ -129,7 +135,7 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
           existingAddress = await getAccount(existingPublicKey);
           if (existingAddress) {
             try {
-              setMessage("Please approve the new address on your device.")
+              setMessage("Please verify the new address on your device.")
               await setAddressOnDevice(existingAddress);
               setMessage(null)
             } catch (e) {
@@ -164,7 +170,7 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
         }
         {
           hasUserStarted && publicKey && !address && 
-            <ViewGetAddress setAddress={(address) => setNewAddress(address, publicKey)} setMessage={setMessage} publicKey={publicKey} />
+            <ViewGetAddress setNewAddress={(address) => setNewAddress(address, publicKey)} setMessage={setMessage} publicKey={publicKey} />
         }
         {
           hasUserStarted && !(publicKey && !address) && 
