@@ -126,6 +126,9 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
           existingAddress = address;
           existingPublicKey = publicKey;
 
+          if (message === "Sorry, we couldn't connect to your Ledger. Please ensure that your Ledger is connected and the Flow app is open.") {
+            setMessage(null);
+          }
         } catch(e) {
           setHasUserStarted(false)
           setMessage("Sorry, we couldn't connect to your Ledger. Please ensure that your Ledger is connected and the Flow app is open.")
