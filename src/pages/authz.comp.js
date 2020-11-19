@@ -50,7 +50,7 @@ export const Authz = ({ network = "local" }) => {
       }
     })
 
-    window.postMessage(
+    window.parent.postMessage(
       {
         type: "FCL::AUTHZ_READY",
       },
