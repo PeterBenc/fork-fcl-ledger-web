@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import styled from 'styled-components'
 import * as fcl from "@onflow/fcl"
+import semver from "semver"
 import FlowLogo from "../images/logo.svg";
 import {getAccount, createAccount} from "../flow/accounts";
 import {
@@ -56,6 +57,9 @@ const Message = styled.div`
   margin-bottom: 2rem;
   text-align: center;
 `;
+
+const CONNECTION_ERROR_MESSAGE = "Sorry, we couldn't connect to your Ledger. Please ensure that your Ledger is connected and the Flow app is open."
+const VERSION_ERROR_MESSAGE = "Your Flow app is out of date. Please update your Flow app to the latest version using Ledger Live."
 
 const ViewDebug = ({ clearAddress }) => {
   return (
@@ -120,30 +124,21 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
         if (!hasUserStarted) return;
         if (address || publicKey) return;
 
-        let appMajorVersion;
-        let appMinorVersion;
-        let appPatchVersion;
         try {
-          let { major, minor, patch } = await getVersionOnDevice();
-          appMajorVersion = major.toString();
-          appMinorVersion = minor.toString();
-          appPatchVersion = patch.toString();
+          let appVersion = await getVersionOnDevice();
 
-          if (
-            (appMajorVersion !== process.env.REACT_APP_FLOW_APP_MAJOR_VERSION) ||
-            (appMinorVersion !== process.env.REACT_APP_FLOW_APP_MINOR_VERSION) ||
-            (appPatchVersion !== process.env.REACT_APP_FLOW_APP_PATCH_VERSION)          
-          ) {
-            setMessage("Your Flow app is out of date. Please update your Flow app to the latest version using Ledger Live.")
+          if (!(semver.gte(appVersion, process.env.REACT_APP_FLOW_APP_VERSION))) {
+            setMessage(VERSION_ERROR_MESSAGE)
             return
           }
  
-          if (message === "Sorry, we couldn't connect to your Ledger. Please ensure that your Ledger is connected and the Flow app is open.") {
+          if (message === CONNECTION_ERROR_MESSAGE) {
             setMessage(null);
           }
         } catch(e) {
+          console.error(e)
           setHasUserStarted(false)
-          setMessage("Sorry, we couldn't connect to your Ledger. Please ensure that your Ledger is connected and the Flow app is open.")
+          setMessage(CONNECTION_ERROR_MESSAGE)
           return
         }
 
@@ -154,12 +149,13 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
           existingAddress = address;
           existingPublicKey = publicKey;
 
-          if (message === "Sorry, we couldn't connect to your Ledger. Please ensure that your Ledger is connected and the Flow app is open.") {
+          if (message === CONNECTION_ERROR_MESSAGE) {
             setMessage(null);
           }
         } catch(e) {
+          console.error(e)
           setHasUserStarted(false)
-          setMessage("Sorry, we couldn't connect to your Ledger. Please ensure that your Ledger is connected and the Flow app is open.")
+          setMessage(CONNECTION_ERROR_MESSAGE)
           return
         }
       

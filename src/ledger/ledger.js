@@ -50,7 +50,7 @@ export const getVersion = async () => {
         if (transport) await transport.close();
     }
 
-    return { major, minor, patch }
+    return `${major}.${minor}.${patch}`
 };
 
 export const appInfo = async () => {
