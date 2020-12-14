@@ -22,6 +22,9 @@ const getTransport = async () => {
 export const getVersion = async () => {
     const transport = await getTransport();
 
+    let major;
+    let minor;
+    let patch;
     try {
         const app = new FlowApp(transport);
 
@@ -39,9 +42,15 @@ export const getVersion = async () => {
         console.log(`Test mode: ${response.testMode}`);
         console.log("Full response:");
         console.log(response);
+        
+        major = response.major
+        minor = response.minor
+        patch = response.patch
     } finally {
-        if (transport) transport.close();
+        if (transport) await transport.close();
     }
+
+    return { major, minor, patch }
 };
 
 export const appInfo = async () => {

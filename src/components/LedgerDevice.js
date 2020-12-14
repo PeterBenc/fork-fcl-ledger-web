@@ -4,6 +4,7 @@ import * as fcl from "@onflow/fcl"
 import FlowLogo from "../images/logo.svg";
 import {getAccount, createAccount} from "../flow/accounts";
 import {
+  getVersion as getVersionOnDevice,
   getAddressAndPublicKey as getAddressAndPublicKeyOnDevice, 
   setAddress as setAddressOnDevice,
   clearAddress as clearAddressOnDevice,
@@ -118,6 +119,33 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
         if (account) return;
         if (!hasUserStarted) return;
         if (address || publicKey) return;
+
+        let appMajorVersion;
+        let appMinorVersion;
+        let appPatchVersion;
+        try {
+          let { major, minor, patch } = await getVersionOnDevice();
+          appMajorVersion = major.toString();
+          appMinorVersion = minor.toString();
+          appPatchVersion = patch.toString();
+
+          if (
+            (appMajorVersion !== process.env.REACT_APP_FLOW_APP_MAJOR_VERSION) ||
+            (appMinorVersion !== process.env.REACT_APP_FLOW_APP_MINOR_VERSION) ||
+            (appPatchVersion !== process.env.REACT_APP_FLOW_APP_PATCH_VERSION)          
+          ) {
+            setMessage("Your Flow app is out of date. Please update your Flow app to the latest version using Ledger Live.")
+            return
+          }
+ 
+          if (message === "Sorry, we couldn't connect to your Ledger. Please ensure that your Ledger is connected and the Flow app is open.") {
+            setMessage(null);
+          }
+        } catch(e) {
+          setHasUserStarted(false)
+          setMessage("Sorry, we couldn't connect to your Ledger. Please ensure that your Ledger is connected and the Flow app is open.")
+          return
+        }
 
         let existingAddress;
         let existingPublicKey;
