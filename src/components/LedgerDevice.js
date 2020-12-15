@@ -128,6 +128,7 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
           let appVersion = await getVersionOnDevice();
 
           if (!(semver.gte(appVersion, process.env.REACT_APP_FLOW_APP_VERSION))) {
+            setHasUserStarted(false)
             setMessage(VERSION_ERROR_MESSAGE)
             return
           }
