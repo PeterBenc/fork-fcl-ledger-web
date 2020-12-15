@@ -1,9 +1,11 @@
 import React, {useEffect, useState} from 'react'
 import styled from 'styled-components'
 import * as fcl from "@onflow/fcl"
+import semver from "semver"
 import FlowLogo from "../images/logo.svg";
 import {getAccount, createAccount} from "../flow/accounts";
 import {
+  getVersion as getVersionOnDevice,
   getAddressAndPublicKey as getAddressAndPublicKeyOnDevice, 
   setAddress as setAddressOnDevice,
   clearAddress as clearAddressOnDevice,
@@ -55,6 +57,9 @@ const Message = styled.div`
   margin-bottom: 2rem;
   text-align: center;
 `;
+
+const CONNECTION_ERROR_MESSAGE = "Sorry, we couldn't connect to your Ledger. Please ensure that your Ledger is connected and the Flow app is open."
+const VERSION_ERROR_MESSAGE = "Your Flow app is out of date. Please update your Flow app to the latest version using Ledger Live."
 
 const ViewDebug = ({ clearAddress }) => {
   return (
@@ -119,6 +124,24 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
         if (!hasUserStarted) return;
         if (address || publicKey) return;
 
+        try {
+          let appVersion = await getVersionOnDevice();
+
+          if (!(semver.gte(appVersion, process.env.REACT_APP_FLOW_APP_VERSION))) {
+            setMessage(VERSION_ERROR_MESSAGE)
+            return
+          }
+ 
+          if (message === CONNECTION_ERROR_MESSAGE) {
+            setMessage(null);
+          }
+        } catch(e) {
+          console.error(e)
+          setHasUserStarted(false)
+          setMessage(CONNECTION_ERROR_MESSAGE)
+          return
+        }
+
         let existingAddress;
         let existingPublicKey;
         try {
@@ -126,12 +149,13 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
           existingAddress = address;
           existingPublicKey = publicKey;
 
-          if (message === "Sorry, we couldn't connect to your Ledger. Please ensure that your Ledger is connected and the Flow app is open.") {
+          if (message === CONNECTION_ERROR_MESSAGE) {
             setMessage(null);
           }
         } catch(e) {
+          console.error(e)
           setHasUserStarted(false)
-          setMessage("Sorry, we couldn't connect to your Ledger. Please ensure that your Ledger is connected and the Flow app is open.")
+          setMessage(CONNECTION_ERROR_MESSAGE)
           return
         }
       
