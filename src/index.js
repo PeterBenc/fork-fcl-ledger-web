@@ -54,12 +54,11 @@ const Inner = styled.div`
   width: 30rem;
   padding: 2rem;
   box-sizing: border-box;
-  border-radius: 0.5rem;
+  border-radius: 1rem;
   display: flex;
   justify-content: center;
   align-items: center;
   background-color: white;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
   overflow-y: scroll;
   position: relative;
 `

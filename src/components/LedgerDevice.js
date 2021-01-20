@@ -14,12 +14,15 @@ import {
 const Button = styled.button`
   -webkit-appearance: none;
   -moz-appearance: none;
+  margin-bottom: 1rem;
   border: none;
   border-radius: 0.5rem;
   padding: 1rem 2rem 1rem 2rem;
   font-size: 1rem;
   text-align: center;
   cursor: pointer;
+  background-color: #02D87E;
+  color: white;
 `;
 
 const Centered = styled.div`
@@ -51,6 +54,16 @@ const LedgerImage = styled.img`
 const Text = styled.div`
   min-height: 3rem;
   text-align: center;
+`;
+
+const Error = styled.div`
+  min-height: 3rem;
+  padding: 1rem;
+  border-radius: 1rem;
+  text-align: center;
+  color: white;
+  background-color: #FC4C2E;
+  box-sizing: border-box;
 `;
 
 const Message = styled.div`
@@ -102,6 +115,7 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
   const [address, setAddress] = useState(null);
   const [publicKey, setPublicKey] = useState(null);
   const [message, setMessage] = useState(null);
+  const [error, setError] = useState(null);
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
 
   const setNewAddress = async (address, publicKey) => {
@@ -129,17 +143,17 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
 
           if (!(semver.gte(appVersion, process.env.REACT_APP_FLOW_APP_VERSION))) {
             setHasUserStarted(false)
-            setMessage(VERSION_ERROR_MESSAGE)
+            setError(VERSION_ERROR_MESSAGE)
             return
           }
  
-          if (message === CONNECTION_ERROR_MESSAGE) {
-            setMessage(null);
+          if (error === CONNECTION_ERROR_MESSAGE) {
+            setError(null);
           }
         } catch(e) {
           console.error(e)
           setHasUserStarted(false)
-          setMessage(CONNECTION_ERROR_MESSAGE)
+          setError(CONNECTION_ERROR_MESSAGE)
           return
         }
 
@@ -150,13 +164,13 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
           existingAddress = address;
           existingPublicKey = publicKey;
 
-          if (message === CONNECTION_ERROR_MESSAGE) {
-            setMessage(null);
+          if (error === CONNECTION_ERROR_MESSAGE) {
+            setError(null);
           }
         } catch(e) {
           console.error(e)
           setHasUserStarted(false)
-          setMessage(CONNECTION_ERROR_MESSAGE)
+          setError(CONNECTION_ERROR_MESSAGE)
           return
         }
       
@@ -205,6 +219,7 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
           hasUserStarted && !(publicKey && !address) && 
             <Text>Retrieving Your Flow Account</Text>
         }
+        { error && <Error>{error}</Error> }
         { message && <Text>{message}</Text> }
       </Centered>
     </div>
