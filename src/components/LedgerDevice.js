@@ -161,7 +161,7 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
         let existingPublicKey;
         try {
           let { address, publicKey } = await getAddressAndPublicKeyOnDevice();
-          existingAddress = address; // Temporarily disabling using address from device
+          existingAddress = address;
           existingPublicKey = publicKey;
 
           if (error === CONNECTION_ERROR_MESSAGE) {
