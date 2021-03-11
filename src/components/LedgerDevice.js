@@ -99,9 +99,7 @@ const ViewGetAddress = ({ setNewAddress, isCreatingAccount, setIsCreatingAccount
     setIsCreatingAccount(true);
     setMessage("Please wait a few moments. The account creation request is being processed.")
     const address = await createAccount(publicKey);
-    
-    // Temporarily disabling setting address on device.
-    // setNewAddress(address);
+    setNewAddress(address);
   };
 
   return (
@@ -163,7 +161,7 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
         let existingPublicKey;
         try {
           let { address, publicKey } = await getAddressAndPublicKeyOnDevice();
-          existingAddress = null; // Temporarily disabling using address from device
+          existingAddress = address; // Temporarily disabling using address from device
           existingPublicKey = publicKey;
 
           if (error === CONNECTION_ERROR_MESSAGE) {
@@ -175,21 +173,18 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
           setError(CONNECTION_ERROR_MESSAGE)
           return
         }
+
+        let addressFromHardwareAPI = await getAccount(existingPublicKey);
       
-        if (!existingAddress) {
-          existingAddress = await getAccount(existingPublicKey);
-          
-          // Temporarily disabling setting address on device.
-          
-          // if (existingAddress) {
-          //   try {
-          //     setMessage("Please verify the new address on your device.")
-          //     await setAddressOnDevice(existingAddress);
-          //     setMessage(null)
-          //   } catch (e) {
-          //     handleCancel()
-          //   }
-          // }
+        if (existingAddress && addressFromHardwareAPI && existingAddress !== addressFromHardwareAPI) {
+          try {
+            setMessage("Please verify the new address on your device.")
+            await setAddressOnDevice(addressFromHardwareAPI);
+            existingAddress = addressFromHardwareAPI
+            setMessage(null)
+          } catch (e) {
+            handleCancel()
+          }
         }
   
         if (existingAddress) {
