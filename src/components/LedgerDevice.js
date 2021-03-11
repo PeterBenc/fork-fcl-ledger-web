@@ -104,7 +104,7 @@ const ViewGetAddress = ({ setNewAddress, isCreatingAccount, setIsCreatingAccount
 
   return (
     <Centered>
-      { !isCreatingAccount && <Message>Please choose an option to initialize Flow on your Ledger device.</Message> }
+      { !isCreatingAccount && <Message>The public key on this device is not yet paired with a Flow account. Click the button below to create a new Flow account for this public key.</Message> }
       { !isCreatingAccount && <Button onClick={() => createNewAccount()}>Create New Account</Button> }
     </Centered>
   );
@@ -178,7 +178,7 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
       
         if (existingAddress && addressFromHardwareAPI && existingAddress !== addressFromHardwareAPI) {
           try {
-            setMessage("Please verify the new address on your device.")
+            setMessage("Change in public key detected. Verify the corresponding address on your device.")
             await setAddressOnDevice(addressFromHardwareAPI);
             existingAddress = addressFromHardwareAPI
             setMessage(null)
