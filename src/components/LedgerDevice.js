@@ -187,7 +187,7 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
           }
         }
   
-        if (existingAddress) {
+        if (existingAddress && existingAddress === addressFromHardwareAPI) {
           onGetAccount({ address: existingAddress, publicKey: existingPublicKey });
           setAddress(existingAddress);
         }
