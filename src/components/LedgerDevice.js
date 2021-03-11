@@ -99,7 +99,9 @@ const ViewGetAddress = ({ setNewAddress, isCreatingAccount, setIsCreatingAccount
     setIsCreatingAccount(true);
     setMessage("Please wait a few moments. The account creation request is being processed.")
     const address = await createAccount(publicKey);
-    setNewAddress(address);
+    
+    // Temporarily disabling setting address on device.
+    // setNewAddress(address);
   };
 
   return (
