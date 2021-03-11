@@ -161,7 +161,7 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
         let existingPublicKey;
         try {
           let { address, publicKey } = await getAddressAndPublicKeyOnDevice();
-          existingAddress = address;
+          existingAddress = null; // Temporarily disabling using address from device
           existingPublicKey = publicKey;
 
           if (error === CONNECTION_ERROR_MESSAGE) {
@@ -176,15 +176,18 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
       
         if (!existingAddress) {
           existingAddress = await getAccount(existingPublicKey);
-          if (existingAddress) {
-            try {
-              setMessage("Please verify the new address on your device.")
-              await setAddressOnDevice(existingAddress);
-              setMessage(null)
-            } catch (e) {
-              handleCancel()
-            }
-          }
+          
+          // Temporarily disabling setting address on device.
+          
+          // if (existingAddress) {
+          //   try {
+          //     setMessage("Please verify the new address on your device.")
+          //     await setAddressOnDevice(existingAddress);
+          //     setMessage(null)
+          //   } catch (e) {
+          //     handleCancel()
+          //   }
+          // }
         }
   
         if (existingAddress) {
