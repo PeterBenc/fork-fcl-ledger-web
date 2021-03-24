@@ -5,6 +5,7 @@ import * as fcl from "@onflow/fcl"
 import * as types from "@onflow/types"
 import {BrowserRouter as Router, Route, Switch} from "react-router-dom"
 import {LocalConfig} from "./config/local.config"
+import {CanarynetConfig} from "./config/canarynet.config"
 import {TestnetConfig} from "./config/testnet.config"
 import {MainnetConfig} from "./config/mainnet.config"
 import {Authn} from "./pages/authn.comp"
@@ -74,13 +75,16 @@ ReactDOM.render(
       <Inner>
         <Router>
           <Route path="/local" component={LocalConfig} />
+          <Route path="/canarynet" component={CanarynetConfig} />
           <Route path="/testnet" component={TestnetConfig} />
           <Route path="/mainnet" component={MainnetConfig} />
           <Switch>
             <Route path="/local/authn" component={props => <Authn {...props} network="local" debug={DEBUG} />} exact />
+            <Route path="/canarynet/authn" component={props => <Authn {...props} network="canarynet" debug={DEBUG} />} exact />
             <Route path="/testnet/authn" component={props => <Authn {...props} network="testnet" debug={DEBUG} />} exact />
             <Route path="/mainnet/authn" component={props => <Authn {...props} network="mainnet" debug={DEBUG} />} exact />
             <Route path="/local/authz" component={props => <Authz {...props} network="local" debug={DEBUG} />} exact />
+            <Route path="/canarynet/authz" component={props => <Authn {...props} network="canarynet" debug={DEBUG} />} exact />
             <Route path="/testnet/authz" component={props => <Authz {...props} network="testnet" debug={DEBUG} />} exact />
             <Route path="/mainnet/authz" component={props => <Authz {...props} network="mainnet" debug={DEBUG} />} exact />
             <Route component={FourOhFour} />
