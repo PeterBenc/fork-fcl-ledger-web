@@ -6,7 +6,7 @@ import {getKeyIdForKeyByAccountAddress} from "../flow/accounts";
 import LedgerDevice from '../components/LedgerDevice';
 
 const StyledContainer = styled.div`
-  height: 100%;
+    height: 100%;
     display: flex;
     flex-direction: column;
     align-items: flex-start;

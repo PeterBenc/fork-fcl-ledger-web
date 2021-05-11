@@ -15,7 +15,6 @@ const Button = styled.button`
   -webkit-appearance: none;
   -moz-appearance: none;
   width: 100%;
-  /* margin-bottom: 1rem; */
   border: none;
   border-radius: 0.5rem;
   padding: 1rem 2rem 1rem 2rem;
@@ -206,7 +205,7 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
           setAddress(addressFromHardwareAPI);
         }
 
-        // setPublicKey(existingPublicKey);
+        setPublicKey(existingPublicKey);
 
     })();
   }, [hasUserStarted, address, publicKey, account, onGetAccount]);
