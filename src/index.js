@@ -63,6 +63,7 @@ const Inner = styled.div`
   background-color: white;
   overflow-y: auto;
   position: relative;
+  box-shadow: 0 19px 38px rgba(0,0,0,0.30), 0 15px 12px rgba(0,0,0,0.22);
 `
 
 const CloseIcon = styled(FaTimes)`
