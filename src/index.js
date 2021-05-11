@@ -8,6 +8,7 @@ import {LocalConfig} from "./config/local.config"
 import {CanarynetConfig} from "./config/canarynet.config"
 import {TestnetConfig} from "./config/testnet.config"
 import {MainnetConfig} from "./config/mainnet.config"
+import {FaTimes} from "react-icons/fa"
 import {Authn} from "./pages/authn.comp"
 import {Authz} from "./pages/authz.comp"
 
@@ -50,7 +51,7 @@ const Wrapper = styled.div`
 
 const Inner = styled.div`
   max-height: 100vh;
-  height: 35rem;
+  height: 25rem;
   max-width: 100vw;
   width: 30rem;
   padding: 2rem;
@@ -60,19 +61,35 @@ const Inner = styled.div`
   justify-content: center;
   align-items: center;
   background-color: white;
-  overflow-y: scroll;
+  overflow-y: auto;
   position: relative;
+`
+
+const CloseIcon = styled(FaTimes)`
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+  height: 1.25rem;
+  width: auto;
+  cursor: pointer;
 `
 
 const DEBUG = process.env.REACT_APP_DEBUG || false;
 
 const FourOhFour = () => <div>404</div>
 
+const handleCancel = () => {
+  window.parent.postMessage({
+    type: "FCL:FRAME:CLOSE"
+  }, "*")
+}
+
 ReactDOM.render(
   <React.StrictMode>
     <GlobalStyle />
-    <Wrapper>
-      <Inner>
+    <Wrapper onClick={handleCancel}>
+      <Inner onClick={e => e.stopPropagation()}>
+        <CloseIcon onClick={handleCancel}/>
         <Router>
           <Route path="/local" component={LocalConfig} />
           <Route path="/canarynet" component={CanarynetConfig} />

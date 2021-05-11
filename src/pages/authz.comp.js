@@ -1,21 +1,30 @@
 import React, {useEffect, useState} from 'react'
 import styled from 'styled-components'
 import * as fcl from "@onflow/fcl"
+import {
+  encodeTransactionPayload as encodeInsideMessage,
+  encodeTransactionEnvelope as encodeOutsideMessage,
+} from "@onflow/encode"
 import {useLocation} from "react-router-dom"
 import {signTransaction} from "../ledger/ledger.js";
 import {getKeyIdForKeyByAccountAddress} from "../flow/accounts.js";
 import LedgerDevice from '../components/LedgerDevice';
 
 const StyledContainer = styled.div`
+    height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
 `
 
-const StyledMessage = styled.div`
+const StyledMessageWrapper = styled.div`
   width: 100%;
   font-size: 1rem;
   text-align: center;
+`
+
+const StyledMessage = styled.div`
+  height: 4rem;
 `
 
 export const Authz = ({ network = "local" }) => {
@@ -79,7 +88,75 @@ export const Authz = ({ network = "local" }) => {
             return
           }
 
-          const signature = await signTransaction(signable.message);
+          const findInsideSigners = (ix) => {
+            // Inside Signers Are: (authorizers + proposer) - payer
+            let inside = new Set(ix.authorizations)
+            inside.add(ix.proposer)
+            inside.delete(ix.payer)
+            return Array.from(inside).map(i => fcl.withPrefix(ix.accounts[i].addr))
+          }
+          
+          const findOutsideSigners = (ix) => {
+            // Outside Signers Are: (payer)
+            let outside = new Set([ix.payer])
+            return Array.from(outside).map(i => fcl.withPrefix(ix.accounts[i].addr))
+          }
+
+          let insideSigners = findInsideSigners(signable.interaction)
+          let outsideSigners = findOutsideSigners(signable.interaction)
+
+          const isInsideSigner = insideSigners.includes(fcl.withPrefix(address))
+          const isOutsideSigner = outsideSigners.includes(fcl.withPrefix(address))
+
+          if (!isInsideSigner && !isOutsideSigner) {
+            const msg = {
+              jsonrpc: "2.0",
+              id: id,
+              result: {
+                status: "DECLINED",
+                reason: "Could not determine whether to produce inside or outside signature."
+              },
+            }
+            window.parent.postMessage(msg, "*")
+            setMessage("Please connect and unlock your Ledger device, open the Flow app and then press start.")
+            return;
+          }
+
+          const signature = isInsideSigner ? 
+            await signTransaction(
+              encodeInsideMessage(
+                {
+                  script: signable.voucher.cadence,
+                  refBlock: signable.voucher.refBlock,
+                  gasLimit: signable.voucher.computeLimit,
+                  arguments: signable.voucher.arguments,
+                  proposalKey: {
+                    ...signable.voucher.proposalKey,
+                    address: fcl.sansPrefix(signable.voucher.proposalKey.address)
+                  },
+                  payer: fcl.sansPrefix(signable.voucher.payer),
+                  authorizers: signable.voucher.authorizers.map(fcl.sansPrefix)
+                }
+              )
+            )
+            :
+            await signTransaction(
+              encodeOutsideMessage(
+                {
+                  script: signable.voucher.cadence,
+                  refBlock: signable.voucher.refBlock,
+                  gasLimit: signable.voucher.computeLimit,
+                  arguments: signable.voucher.arguments,
+                  proposalKey: {
+                    ...signable.voucher.proposalKey,
+                    address: fcl.sansPrefix(signable.voucher.proposalKey.address)
+                  },
+                  payer: fcl.sansPrefix(signable.voucher.payer),
+                  authorizers: signable.voucher.authorizers.map(fcl.sansPrefix),
+                  payloadSigs: signable.voucher.payloadSigs
+                }
+              )
+            )
 
           if (!signature) {
               const msg = {
@@ -118,7 +195,7 @@ export const Authz = ({ network = "local" }) => {
   return (
       <StyledContainer>
         <LedgerDevice account={account} onGetAccount={account => setAccount(account)} handleCancel={handleCancel} />
-        <StyledMessage>{message}</StyledMessage>
+        <StyledMessageWrapper>{ message && <StyledMessage>{message}</StyledMessage> }</StyledMessageWrapper>
       </StyledContainer>    
   )
 }

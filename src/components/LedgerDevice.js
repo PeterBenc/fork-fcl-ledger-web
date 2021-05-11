@@ -14,7 +14,8 @@ import {
 const Button = styled.button`
   -webkit-appearance: none;
   -moz-appearance: none;
-  margin-bottom: 1rem;
+  width: 100%;
+  /* margin-bottom: 1rem; */
   border: none;
   border-radius: 0.5rem;
   padding: 1rem 2rem 1rem 2rem;
@@ -25,11 +26,17 @@ const Button = styled.button`
   color: white;
 `;
 
+const Column = styled.div`
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+`
+
 const Centered = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 1rem;
 `;
 
 const Row = styled.div`
@@ -52,14 +59,16 @@ const LedgerImage = styled.img`
 `;
 
 const Text = styled.div`
+  margin-top: 1rem;
   min-height: 3rem;
   text-align: center;
 `;
 
 const Error = styled.div`
+  margin-top: 1rem;
   min-height: 3rem;
   padding: 1rem;
-  border-radius: 1rem;
+  border-radius: 0.5rem;
   text-align: center;
   color: white;
   background-color: #FC4C2E;
@@ -197,13 +206,13 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
           setAddress(addressFromHardwareAPI);
         }
 
-        setPublicKey(existingPublicKey);
+        // setPublicKey(existingPublicKey);
 
     })();
   }, [hasUserStarted, address, publicKey, account, onGetAccount]);
 
   return (
-    <div>
+    <Column>
       <Centered>
         <Row><LedgerImage src={FlowLogo} /><LedgerTitle>Ledger</LedgerTitle></Row>
         <Text>{address && `Address: ${fcl.withPrefix(address)}`}</Text>
@@ -221,13 +230,13 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
             <ViewGetAddress isCreatingAccount={isCreatingAccount} setIsCreatingAccount={setIsCreatingAccount} setNewAddress={(address) => setNewAddress(address, publicKey)} setMessage={setMessage} publicKey={publicKey} />
         }
         {
-          hasUserStarted && !(publicKey && !address) && 
+          hasUserStarted && !address && 
             <Text>Retrieving Your Flow Account</Text>
         }
         { error && <Error>{error}</Error> }
         { message && <Text>{message}</Text> }
       </Centered>
-    </div>
+    </Column>
   );
 };
 
