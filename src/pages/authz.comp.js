@@ -124,6 +124,39 @@ export const Authz = ({ network = "local" }) => {
               setMessage("Please connect and unlock your Ledger device, open the Flow app and then press start.")
               return;
             }
+
+            console.log("MSG TO SIGN: ", isInsideSigner ? 
+              encodeInsideMessage(
+                {
+                  script: signable.voucher.cadence,
+                  refBlock: signable.voucher.refBlock,
+                  gasLimit: signable.voucher.computeLimit,
+                  arguments: signable.voucher.arguments,
+                  proposalKey: {
+                    ...signable.voucher.proposalKey,
+                    address: fcl.sansPrefix(signable.voucher.proposalKey.address)
+                  },
+                  payer: fcl.sansPrefix(signable.voucher.payer),
+                  authorizers: signable.voucher.authorizers.map(fcl.sansPrefix)
+                }
+              ) 
+            :
+              encodeOutsideMessage(
+                {
+                  script: signable.voucher.cadence,
+                  refBlock: signable.voucher.refBlock,
+                  gasLimit: signable.voucher.computeLimit,
+                  arguments: signable.voucher.arguments,
+                  proposalKey: {
+                    ...signable.voucher.proposalKey,
+                    address: fcl.sansPrefix(signable.voucher.proposalKey.address)
+                  },
+                  payer: fcl.sansPrefix(signable.voucher.payer),
+                  authorizers: signable.voucher.authorizers.map(fcl.sansPrefix),
+                  payloadSigs: signable.voucher.payloadSigs
+                }
+              )
+            )
   
             signature = isInsideSigner ? 
               await signTransaction(
