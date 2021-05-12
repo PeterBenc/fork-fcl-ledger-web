@@ -88,75 +88,81 @@ export const Authz = ({ network = "local" }) => {
             return
           }
 
-          const findInsideSigners = (ix) => {
-            // Inside Signers Are: (authorizers + proposer) - payer
-            let inside = new Set(ix.authorizations)
-            inside.add(ix.proposer)
-            inside.delete(ix.payer)
-            return Array.from(inside).map(i => fcl.withPrefix(ix.accounts[i].addr))
-          }
-          
-          const findOutsideSigners = (ix) => {
-            // Outside Signers Are: (payer)
-            let outside = new Set([ix.payer])
-            return Array.from(outside).map(i => fcl.withPrefix(ix.accounts[i].addr))
-          }
+          let signature;
 
-          let insideSigners = findInsideSigners(signable.interaction)
-          let outsideSigners = findOutsideSigners(signable.interaction)
-
-          const isInsideSigner = insideSigners.includes(fcl.withPrefix(address))
-          const isOutsideSigner = outsideSigners.includes(fcl.withPrefix(address))
-
-          if (!isInsideSigner && !isOutsideSigner) {
-            const msg = {
-              jsonrpc: "2.0",
-              id: id,
-              result: {
-                status: "DECLINED",
-                reason: "Could not determine whether to produce inside or outside signature."
-              },
+          if (signable.voucher) {
+            const findInsideSigners = (ix) => {
+              // Inside Signers Are: (authorizers + proposer) - payer
+              let inside = new Set(ix.authorizations)
+              inside.add(ix.proposer)
+              inside.delete(ix.payer)
+              return Array.from(inside).map(i => fcl.withPrefix(ix.accounts[i].addr))
             }
-            window.parent.postMessage(msg, "*")
-            setMessage("Please connect and unlock your Ledger device, open the Flow app and then press start.")
-            return;
+            
+            const findOutsideSigners = (ix) => {
+              // Outside Signers Are: (payer)
+              let outside = new Set([ix.payer])
+              return Array.from(outside).map(i => fcl.withPrefix(ix.accounts[i].addr))
+            }
+  
+            let insideSigners = findInsideSigners(signable.interaction)
+            let outsideSigners = findOutsideSigners(signable.interaction)
+  
+            const isInsideSigner = insideSigners.includes(fcl.withPrefix(address))
+            const isOutsideSigner = outsideSigners.includes(fcl.withPrefix(address))
+  
+            if (!isInsideSigner && !isOutsideSigner) {
+              const msg = {
+                jsonrpc: "2.0",
+                id: id,
+                result: {
+                  status: "DECLINED",
+                  reason: "Could not determine whether to produce inside or outside signature."
+                },
+              }
+              window.parent.postMessage(msg, "*")
+              setMessage("Please connect and unlock your Ledger device, open the Flow app and then press start.")
+              return;
+            }
+  
+            signature = isInsideSigner ? 
+              await signTransaction(
+                encodeInsideMessage(
+                  {
+                    script: signable.voucher.cadence,
+                    refBlock: signable.voucher.refBlock,
+                    gasLimit: signable.voucher.computeLimit,
+                    arguments: signable.voucher.arguments,
+                    proposalKey: {
+                      ...signable.voucher.proposalKey,
+                      address: fcl.sansPrefix(signable.voucher.proposalKey.address)
+                    },
+                    payer: fcl.sansPrefix(signable.voucher.payer),
+                    authorizers: signable.voucher.authorizers.map(fcl.sansPrefix)
+                  }
+                )
+              )
+              :
+              await signTransaction(
+                encodeOutsideMessage(
+                  {
+                    script: signable.voucher.cadence,
+                    refBlock: signable.voucher.refBlock,
+                    gasLimit: signable.voucher.computeLimit,
+                    arguments: signable.voucher.arguments,
+                    proposalKey: {
+                      ...signable.voucher.proposalKey,
+                      address: fcl.sansPrefix(signable.voucher.proposalKey.address)
+                    },
+                    payer: fcl.sansPrefix(signable.voucher.payer),
+                    authorizers: signable.voucher.authorizers.map(fcl.sansPrefix),
+                    payloadSigs: signable.voucher.payloadSigs
+                  }
+                )
+              )
+          } else {
+            signature = await signTransaction(signable.message)
           }
-
-          const signature = isInsideSigner ? 
-            await signTransaction(
-              encodeInsideMessage(
-                {
-                  script: signable.voucher.cadence,
-                  refBlock: signable.voucher.refBlock,
-                  gasLimit: signable.voucher.computeLimit,
-                  arguments: signable.voucher.arguments,
-                  proposalKey: {
-                    ...signable.voucher.proposalKey,
-                    address: fcl.sansPrefix(signable.voucher.proposalKey.address)
-                  },
-                  payer: fcl.sansPrefix(signable.voucher.payer),
-                  authorizers: signable.voucher.authorizers.map(fcl.sansPrefix)
-                }
-              )
-            )
-            :
-            await signTransaction(
-              encodeOutsideMessage(
-                {
-                  script: signable.voucher.cadence,
-                  refBlock: signable.voucher.refBlock,
-                  gasLimit: signable.voucher.computeLimit,
-                  arguments: signable.voucher.arguments,
-                  proposalKey: {
-                    ...signable.voucher.proposalKey,
-                    address: fcl.sansPrefix(signable.voucher.proposalKey.address)
-                  },
-                  payer: fcl.sansPrefix(signable.voucher.payer),
-                  authorizers: signable.voucher.authorizers.map(fcl.sansPrefix),
-                  payloadSigs: signable.voucher.payloadSigs
-                }
-              )
-            )
 
           if (!signature) {
               const msg = {
