@@ -26,7 +26,7 @@ const Button = styled.button`
 `;
 
 const Column = styled.div`
-  height: 100%;
+  min-height: 20rem;
   display: flex;
   flex-direction: column;
   justify-content: space-around;
@@ -68,7 +68,7 @@ const Error = styled.div`
   min-height: 3rem;
   padding: 1rem;
   border-radius: 0.5rem;
-  text-align: center;
+  text-align: left;
   color: white;
   background-color: #FC4C2E;
   box-sizing: border-box;
@@ -79,7 +79,25 @@ const Message = styled.div`
   text-align: center;
 `;
 
-const CONNECTION_ERROR_MESSAGE = "Sorry, we couldn't connect to your Ledger. Please ensure that your Ledger is connected and the Flow app is open."
+const TextCenter = styled.div`
+  text-align: center;
+`
+
+const HorizontalLine = styled.hr`
+  color: white;
+  border: 1px solid white;
+`
+
+const CONNECTION_ERROR_MESSAGE = 
+<div>
+  <TextCenter>Sorry, we couldn't connect to your Ledger. Please ensure that your Ledger is connected and the Flow app is open.</TextCenter><br />
+  <HorizontalLine /><br />
+  The reccomended browser to access your Ledger is Google Chrome. Using Chrome, the common solution to Ledger connection issues is to:<br /><br />
+  - Navigate to chrome://flags#new-usb-backend<br />
+  - Ensure that the Enable new USB backend flag is set to “Disabled”<br />
+  - Restart your browser and reconnect your Ledger device
+</div>
+
 const VERSION_ERROR_MESSAGE = "Your Flow app is out of date. Please update your Flow app to the latest version using Ledger Live."
 
 const ViewDebug = ({ clearAddress }) => {
@@ -120,6 +138,7 @@ const ViewGetAddress = ({ setNewAddress, isCreatingAccount, setIsCreatingAccount
 
 const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
   const [hasUserStarted, setHasUserStarted] = useState(false);
+  const [initialConnectingToLedger, setInitialConnectingToLedger] = useState(false)
   const [address, setAddress] = useState(null);
   const [publicKey, setPublicKey] = useState(null);
   const [message, setMessage] = useState(null);
@@ -145,12 +164,15 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
         if (account) return;
         if (!hasUserStarted) return;
         if (address || publicKey) return;
+        
+        setInitialConnectingToLedger(true)
 
         try {
           let appVersion = await getVersionOnDevice();
 
           if (!(semver.gte(appVersion, process.env.REACT_APP_FLOW_APP_VERSION))) {
             setHasUserStarted(false)
+            setInitialConnectingToLedger(false)
             setError(VERSION_ERROR_MESSAGE)
             return
           }
@@ -161,9 +183,12 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
         } catch(e) {
           console.error(e)
           setHasUserStarted(false)
+          setInitialConnectingToLedger(false)
           setError(CONNECTION_ERROR_MESSAGE)
           return
         }
+        
+        setInitialConnectingToLedger(false)
 
         let existingAddress;
         let existingPublicKey;
@@ -229,8 +254,12 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
             <ViewGetAddress isCreatingAccount={isCreatingAccount} setIsCreatingAccount={setIsCreatingAccount} setNewAddress={(address) => setNewAddress(address, publicKey)} setMessage={setMessage} publicKey={publicKey} />
         }
         {
-          hasUserStarted && !address && 
+          hasUserStarted && !initialConnectingToLedger && !address && !publicKey &&
             <Text>Retrieving Your Flow Account</Text>
+        }
+        {
+          hasUserStarted && initialConnectingToLedger && !address && 
+            <Text>Attempting to connect to your Ledger device.<br/><br/>Please connect and unlock your Ledger device and open the Flow app.</Text>
         }
         { error && <Error>{error}</Error> }
         { message && <Text>{message}</Text> }

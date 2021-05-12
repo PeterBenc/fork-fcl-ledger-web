@@ -11,10 +11,10 @@ import {getKeyIdForKeyByAccountAddress} from "../flow/accounts.js";
 import LedgerDevice from '../components/LedgerDevice';
 
 const StyledContainer = styled.div`
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  min-height: 20rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 `
 
 const StyledMessageWrapper = styled.div`

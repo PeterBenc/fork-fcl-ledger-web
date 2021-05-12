@@ -51,15 +51,11 @@ const Wrapper = styled.div`
 
 const Inner = styled.div`
   max-height: 100vh;
-  height: 25rem;
-  max-width: 100vw;
+  min-height: 20rem;
   width: 30rem;
   padding: 2rem;
   box-sizing: border-box;
   border-radius: 1rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   background-color: white;
   overflow-y: auto;
   position: relative;
