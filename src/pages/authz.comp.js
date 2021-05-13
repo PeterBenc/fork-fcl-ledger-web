@@ -119,7 +119,7 @@ export const Authz = ({ network = "local" }) => {
                 id: id,
                 result: {
                   status: "DECLINED",
-                  reason: "Could not determine whether to produce inside or outside signature."
+                  reason: "Could not determine whether to produce payload or envelope signature."
                 },
               }
               window.parent.postMessage(msg, "*")
