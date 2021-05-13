@@ -90,6 +90,8 @@ export const Authz = ({ network = "local" }) => {
 
           let signature;
 
+          console.log("SIGNABLE: ", signable)
+
           if (signable.voucher) {
             const findPayloadSigners = (ix) => {
               // Payload Signers Are: (authorizers + proposer) - payer
