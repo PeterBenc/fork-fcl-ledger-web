@@ -27,6 +27,9 @@ const StyledMessage = styled.div`
   height: 4rem;
 `
 
+const DEFAULT_MESSAGE = "Please connect and unlock your Ledger device, open the Flow app and then press start."
+const ADDRESS_MISMATCH_MESSAGE = "The Flow account detected from your Ledger doesn't match whats expected from the transaction. Please ensure the passphrase you used to unlock your Ledger is the same as the one used when authenticating with this application."
+
 export const Authz = ({ network = "local" }) => {
   const [id, setId] = useState(null)
   const [signable, setSignable] = useState("")
@@ -36,7 +39,7 @@ export const Authz = ({ network = "local" }) => {
   const [account, setAccount] = useState(null);
 
   const handleCancel = () => {
-    setMessage("Please connect and unlock your Ledger device, open the Flow app and then press start.")
+    setMessage(DEFAULT_MESSAGE)
     const msg = {
       jsonrpc: "2.0",
       id: id,
@@ -75,7 +78,7 @@ export const Authz = ({ network = "local" }) => {
           const { address, publicKey } = account;
 
           if (!publicKey || !address) {
-            setMessage("Please connect and unlock your Ledger device, open the Flow app and then press start.")
+            setMessage(DEFAULT_MESSAGE)
             return
           }
 
@@ -84,7 +87,7 @@ export const Authz = ({ network = "local" }) => {
           const keyId = await getKeyIdForKeyByAccountAddress(address, publicKey)
 
           if (keyId === -1) {
-            setMessage("Please connect and unlock your Ledger device, open the Flow app and then press start.")
+            setMessage(DEFAULT_MESSAGE)
             return
           }
 
@@ -114,16 +117,8 @@ export const Authz = ({ network = "local" }) => {
             const isEnvelopeSigner = envelopeSigners.includes(fcl.withPrefix(address))
   
             if (!isPayloadSigner && !isEnvelopeSigner) {
-              const msg = {
-                jsonrpc: "2.0",
-                id: id,
-                result: {
-                  status: "DECLINED",
-                  reason: "Could not determine whether to produce payload or envelope signature."
-                },
-              }
-              window.parent.postMessage(msg, "*")
-              setMessage("Please connect and unlock your Ledger device, open the Flow app and then press start.")
+              setMessage(ADDRESS_MISMATCH_MESSAGE)
+              setAccount(null)
               return;
             }
   
