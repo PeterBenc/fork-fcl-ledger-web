@@ -161,6 +161,17 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
   };
 
   useEffect(() => {
+    if (account === null && address !== null) {
+      setHasUserStarted(false)
+      setInitialConnectingToLedger(false)
+      setAddress(null)
+      setPublicKey(null)
+      setMessage(null)
+      setIsCreatingAccount(null)
+    }
+  }, [account])
+
+  useEffect(() => {
     (async function getAccountFromDevice() {
         if (account) return;
         if (!hasUserStarted) return;
