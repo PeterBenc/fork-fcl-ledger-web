@@ -92,7 +92,7 @@ const CONNECTION_ERROR_MESSAGE =
 <div>
   <TextCenter>Sorry, we couldn't connect to your Ledger. Please ensure that your Ledger is connected and the Flow app is open.</TextCenter><br />
   <HorizontalLine /><br />
-  The reccomended browser to access your Ledger is Google Chrome. Using Chrome, the common solution to Ledger connection issues is to:<br /><br />
+  We recommend using Google Chrome to connect to your Ledger. If using Chrome on a Windows device, the common solution to Ledger connection issues is to:<br /><br />
   - Close any other software that can interact with your Ledger Device (Ledger Live, other wallets etc)<br />
   - Navigate to chrome://flags#new-usb-backend<br />
   - Ensure that the Enable new USB backend flag is set to “Disabled”<br />
