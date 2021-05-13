@@ -24,11 +24,16 @@ const StyledMessageWrapper = styled.div`
 `
 
 const StyledMessage = styled.div`
-  height: 4rem;
+  min-height: 4rem;
 `
 
 const DEFAULT_MESSAGE = "Please connect and unlock your Ledger device, open the Flow app and then press start."
-const ADDRESS_MISMATCH_MESSAGE = "The Flow account detected from your Ledger doesn't match whats expected from the transaction. Please ensure the passphrase you used to unlock your Ledger is the same as the one used when authenticating with this application."
+const ADDRESS_MISMATCH_MESSAGE = 
+<div>
+  The Flow account detected from your Ledger doesn't match whats expected from the transaction. Please ensure the passphrase you used to unlock your Ledger is the same as the one used when authenticating with this application.
+  <br/><br/>
+  Please connect and unlock your Ledger device, open the Flow app and then press start.
+</div>
 
 export const Authz = ({ network = "local" }) => {
   const [id, setId] = useState(null)
