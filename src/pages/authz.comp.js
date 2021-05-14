@@ -39,7 +39,7 @@ const StyledErrorMesssage = styled.div`
 const DEFAULT_MESSAGE = "Please connect and unlock your Ledger device, open the Flow app and then press start."
 const ADDRESS_MISMATCH_MESSAGE = 
 <StyledErrorMesssage>
-  The Flow account detected from your Ledger device doesn't match what is expected in the transaction.
+  The Flow account saved to your Ledger device does not match the account that is expected by the transaction.
   <br/><br/>
   Please ensure the passphrase you used to unlock your Ledger is the same as the one used when authenticating with this application and try again.
 </StyledErrorMesssage>
