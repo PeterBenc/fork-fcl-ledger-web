@@ -41,7 +41,7 @@ const ADDRESS_MISMATCH_MESSAGE =
 <StyledErrorMesssage>
   The Flow account detected from your Ledger device doesn't match what is expected in the transaction.
   <br/><br/>
-  Please ensure the passphrase you used to unlock your Ledger is the same as the one used when authenticating with this application.
+  Please ensure the passphrase you used to unlock your Ledger is the same as the one used when authenticating with this application and try again.
 </StyledErrorMesssage>
 
 export const Authz = ({ network = "local" }) => {
