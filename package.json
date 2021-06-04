@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@ledgerhq/hw-transport-webhid": "^5.51.1",
     "@ledgerhq/hw-transport-webusb": "^5.49.0",
     "@onflow/encode": "0.0.8",
     "@onflow/fcl": "0.0.70",
