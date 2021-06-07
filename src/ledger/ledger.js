@@ -1,4 +1,4 @@
-import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
+import TransportWebHID from "@ledgerhq/hw-transport-webhid";
 import FlowApp from "@onflow/ledger";
 
 const SCHEME = 0x301;
@@ -12,7 +12,7 @@ const getTransport = async () => {
     let transport = null;
     console.log(`Trying to connect via WebUSB...`);
     try {
-        transport = await TransportWebUSB.create();
+        transport = await TransportWebHID.create();
     } catch (e) {
         console.log(e);
     }

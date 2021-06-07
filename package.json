@@ -3,9 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@ledgerhq/hw-transport-webhid": "^5.51.1",
     "@ledgerhq/hw-transport-webusb": "^5.49.0",
     "@onflow/encode": "0.0.8",
-    "@onflow/fcl": "0.0.70",
+    "@onflow/fcl": "0.0.71",
     "@onflow/ledger": "^0.1.0",
     "@onflow/types": "^0.0.4",
     "@testing-library/jest-dom": "^4.2.4",
