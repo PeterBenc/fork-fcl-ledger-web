@@ -169,10 +169,7 @@ export const Authz = ({ network = "local" }) => {
                   }
                 )
               )
-          } else {
-            signature = await signTransaction(signable.message)
           }
-
           if (!signature) {
               const msg = {
                 jsonrpc: "2.0",
