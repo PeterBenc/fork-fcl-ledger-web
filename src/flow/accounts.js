@@ -1,5 +1,5 @@
 import * as fcl from "@onflow/fcl"
-import { config } from "@onflow/config"
+import { config } from "@onflow/fcl"
 
 const accountsPath = "/accounts"
 
