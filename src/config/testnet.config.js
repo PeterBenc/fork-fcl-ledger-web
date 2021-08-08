@@ -1,5 +1,5 @@
 import {useEffect} from "react"
-import {config} from "@onflow/config"
+import {config} from "@onflow/fcl"
 
 export function TestnetConfig() {
   useEffect(() => {
