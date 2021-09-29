@@ -223,9 +223,6 @@ export const signTransaction = async (tx) => {
         console.log(`Test mode: ${version.testMode}`);
 
         const message = Buffer.from(tx, "hex");
-
-        console.log("tx message", message)
-
         console.log("Sending Request..");
         const response = await app.sign(PATH_ADDRESS, message);
         console.log('Sign response: ', response);
