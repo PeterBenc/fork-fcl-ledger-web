@@ -243,11 +243,7 @@ export const signTransaction = async (tx) => {
         if (transport) transport.close();
     }
 
-    const sig = convertToRawSignature(signature);
-
-    console.log(sig)
-
-    return sig
+    return convertToRawSignature(signature);
 };
 
 // remove leading byte from public key
