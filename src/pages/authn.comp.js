@@ -19,12 +19,24 @@ const StyledMessage = styled.div`
 
 export const Authn = ({ network = "local" }) => {
     const [account, setAccount] = useState(null);
+    const [serviceConfig, setServiceConfig] = useState(null)
+    const [appConfig, setAppConfig] = useState(null)
 
     const handleCancel = () => {
-      window.parent.postMessage({
-        type: "FCL::CHALLENGE::CANCEL"
-      }, "*")
+      fcl.WalletUtils.sendMsgToFCL("FCL:VIEW:CLOSE")
     }
+
+    useEffect(() => {
+      fcl.WalletUtils.onMessageFromFCL("FCL:VIEW:READY:RESPONSE", (data) => {
+        console.log("FCL:VIEW:READY:RESPONSE", JSON.parse(JSON.stringify(data)))
+        if (data.type === "FCL:VIEW:READY:RESPONSE") {
+          setServiceConfig(data.config.service)
+          setAppConfig(data.config.app)
+        }
+      })
+  
+      fcl.WalletUtils.sendMsgToFCL("FCL:VIEW:READY")
+    }, [])
 
     useEffect(() => {
         (async function getAddress() {
@@ -38,39 +50,49 @@ export const Authn = ({ network = "local" }) => {
 
             const keyId = await getKeyIdForKeyByAccountAddress(address, publicKey)
 
-            const msg = {
-              type: "FCL::CHALLENGE::RESPONSE",
+            fcl.WalletUtils.approve({
+              f_type: "AuthnResponse",
+              f_vsn: "1.0.0",
               addr: fcl.withPrefix(address),  
-              paddr: null,    
-              hks: null,       
-              code: null,      
               services: [      
                 {
+                  f_type: "Service",
+                  f_vsn: "1.0.0",
                   type: "authz",
                   method: "IFRAME/RPC",
-                  id: "fcl-ledger-authz",
-                  addr: fcl.withPrefix(address),
-                  keyId: keyId,
+                  uid: "fcl-ledger-authz",
                   endpoint: `${window.location.origin}/${network}/authz`,
-                  params: {
+                  identity: {
+                    f_type: "Identity",
+                    f_vsn: "1.0.0",
                     address: fcl.withPrefix(address),
                     keyId: keyId,
-                    sessionId: "UXfZXdUzU",
                   },
+                  data: {},
+                  params: {}
                 },
                 {
+                  f_type: "Service",
+                  f_vsn: "1.0.0",
                   type: "authn",
-                  addr: null,
-                  pid: fcl.withPrefix(address),
-                  id: "fcl-ledger-authn",
-                  name: "Flow Ledger",
-                  authn: `${window.location.origin}/${network}/authn`,
-                  icon: "",
+                  method: "DATA",
+                  uid: "fcl-ledger-authn",
+                  endpoint: `${window.location.origin}/${network}/authn`,
+                  id: fcl.withPrefix(address),
+                  identity: {
+                    f_type: "Identity",
+                    f_vsn: "1.0.0",
+                    address: fcl.withPrefix(address),
+                    keyId: keyId,
+                  },
+                  provider: {
+                    f_type: "ServiceProvider",                
+                    f_vsn: "1.0.0",                          
+                    address: "0xPLACEHOLDER",                
+                  },
                 },
-              ],
-            }
-
-            window.parent.postMessage(msg, "*")
+              ]
+            })
         })();
     }, [account])
 

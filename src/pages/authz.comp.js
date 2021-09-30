@@ -45,43 +45,24 @@ const ADDRESS_MISMATCH_MESSAGE =
 </StyledErrorMesssage>
 
 export const Authz = ({ network = "local" }) => {
-  const [id, setId] = useState(null)
   const [signable, setSignable] = useState("")
-  const [paramsFromConfig, setParamsFromConfig] = useState(null)
-  
   const [message, setMessage] = useState("");
   const [account, setAccount] = useState(null);
 
   const handleCancel = () => {
-    setMessage(DEFAULT_MESSAGE)
-    const msg = {
-      jsonrpc: "2.0",
-      id: id,
-      result: {
-        status: "DECLINED",
-        reason: "Ledger device did not sign this transaction."
-      },
-    }
-    window.parent.postMessage(msg, "*")
+    fcl.WalletUtils.sendMsgToFCL("FCL:VIEW:CLOSE")
   }
 
   useEffect(() => {
-    window.addEventListener("message", ({ data }) => {
-      if (data.jsonrpc === "2.0" && data.method === "fcl:sign") {
-        const [signable, paramsFromConfig] = data.params
-        setId(data.id)
-
-        setSignable(signable)
-        setParamsFromConfig(paramsFromConfig)
+    fcl.WalletUtils.onMessageFromFCL("FCL:VIEW:READY:RESPONSE", (data) => {
+      console.log("FCL:VIEW:READY:RESPONSE", JSON.parse(JSON.stringify(data)))
+      if (data.type === "FCL:VIEW:READY:RESPONSE") {
+        const _signable = data.body
+        setSignable(_signable)
       }
     })
 
-    window.parent.postMessage(
-      {
-        type: "FCL::AUTHZ_READY",
-      },
-      "*"
-    )
+    fcl.WalletUtils.sendMsgToFCL("FCL:VIEW:READY")
   }, [])
 
   useEffect(() => {
@@ -108,22 +89,25 @@ export const Authz = ({ network = "local" }) => {
           let signature;
 
           if (signable.voucher) {
-            const findPayloadSigners = (ix) => {
+            const findPayloadSigners = (voucher) => {
               // Payload Signers Are: (authorizers + proposer) - payer
-              let payload = new Set(ix.authorizations)
-              payload.add(ix.proposer)
-              payload.delete(ix.payer)
-              return Array.from(payload).map(i => fcl.withPrefix(ix.accounts[i].addr))
+              let payload = new Set(voucher.authorizers)
+              payload.add(voucher.proposalKey.address)
+              payload.delete(voucher.payer)
+              return Array.from(payload).map(fcl.withPrefix)
             }
             
-            const findEnvelopeSigners = (ix) => {
+            const findEnvelopeSigners = (voucher) => {
               // Envelope Signers Are: (payer)
-              let envelope = new Set([ix.payer])
-              return Array.from(envelope).map(i => fcl.withPrefix(ix.accounts[i].addr))
+              let envelope = new Set([voucher.payer])
+              return Array.from(envelope).map(fcl.withPrefix)
             }
   
-            let payloadSigners = findPayloadSigners(signable.interaction)
-            let envelopeSigners = findEnvelopeSigners(signable.interaction)
+            let payloadSigners = findPayloadSigners(signable.voucher)
+            let envelopeSigners = findEnvelopeSigners(signable.voucher)
+
+            console.log("payloadSigners", payloadSigners)
+            console.log("envelopeSigners", envelopeSigners)
   
             const isPayloadSigner = payloadSigners.includes(fcl.withPrefix(address))
             const isEnvelopeSigner = envelopeSigners.includes(fcl.withPrefix(address))
@@ -133,74 +117,26 @@ export const Authz = ({ network = "local" }) => {
               setAccount(null)
               return;
             }
+
+            const message = fcl.WalletUtils.encodeMessageFromSignable(signable, fcl.withPrefix(address)).substring(64)
   
-            signature = isPayloadSigner ? 
-              await signTransaction(
-                encodeTransactionPayload(
-                  {
-                    script: signable.voucher.cadence,
-                    refBlock: signable.voucher.refBlock,
-                    gasLimit: signable.voucher.computeLimit,
-                    arguments: signable.voucher.arguments,
-                    proposalKey: {
-                      ...signable.voucher.proposalKey,
-                      address: fcl.sansPrefix(signable.voucher.proposalKey.address)
-                    },
-                    payer: fcl.sansPrefix(signable.voucher.payer),
-                    authorizers: signable.voucher.authorizers.map(fcl.sansPrefix)
-                  }
-                )
-              )
-              :
-              await signTransaction(
-                encodeTransactionEnvelope(
-                  {
-                    script: signable.voucher.cadence,
-                    refBlock: signable.voucher.refBlock,
-                    gasLimit: signable.voucher.computeLimit,
-                    arguments: signable.voucher.arguments,
-                    proposalKey: {
-                      ...signable.voucher.proposalKey,
-                      address: fcl.sansPrefix(signable.voucher.proposalKey.address)
-                    },
-                    payer: fcl.sansPrefix(signable.voucher.payer),
-                    authorizers: signable.voucher.authorizers.map(fcl.sansPrefix),
-                    payloadSigs: signable.voucher.payloadSigs
-                  }
-                )
-              )
+            signature = await signTransaction(message)
           }
           if (!signature) {
-              const msg = {
-                jsonrpc: "2.0",
-                id: id,
-                result: {
-                  status: "DECLINED",
-                  reason: "Ledger device did not sign this transaction."
-                },
-              }
-              window.parent.postMessage(msg, "*")
+              fcl.WalletUtils.decline("Ledger device did not sign this transaction.")
               setMessage("Please connect and unlock your Ledger device, open the Flow app and then press start.")
               return;
           }
 
           setMessage("Signature: " + signature)
 
-          const msg = {
-            jsonrpc: "2.0",
-            id: id,
-            result: {
-              status: "APPROVED",
-              reason: null,
-              compositeSignature: {
-                addr: fcl.withPrefix(address),
-                keyId: keyId,
-                signature: signature,
-              },
-            },
-          }
-
-          window.parent.postMessage(msg, "*")
+          fcl.WalletUtils.approve({
+              f_type: "CompositeSignature",
+              f_vsn: "1.0.0",
+              addr: fcl.withPrefix(address),
+              keyId: keyId,
+              signature: signature,
+          })
       })();
   }, [signable, account])
 
