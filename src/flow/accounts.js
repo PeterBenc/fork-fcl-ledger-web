@@ -56,7 +56,9 @@ export const getKeyIdForKeyByAccountAddress = async (address, publicKey) => {
 
   const account = await fcl.decode(response)
 
-  const key = account.keys.find(k => k.publicKey === publicKey)
+  const key = account.keys.find(k => {
+    return k.publicKey === publicKey && !(k.revoked)
+  })
 
   if (!key) return -1;
 
