@@ -27,7 +27,7 @@ export const Authn = ({ network = "local" }) => {
     }
 
     useEffect(() => {
-      fcl.WalletUtils.onMessageFromFCL("FCL:VIEW:READY:RESPONSE", (data) => {
+      const unmount = fcl.WalletUtils.onMessageFromFCL("FCL:VIEW:READY:RESPONSE", (data) => {
         if (data.type === "FCL:VIEW:READY:RESPONSE") {
           setServiceConfig(data.config.service)
           setAppConfig(data.config.app)
@@ -35,6 +35,8 @@ export const Authn = ({ network = "local" }) => {
       })
   
       fcl.WalletUtils.sendMsgToFCL("FCL:VIEW:READY")
+
+      return unmount
     }, [])
 
     useEffect(() => {

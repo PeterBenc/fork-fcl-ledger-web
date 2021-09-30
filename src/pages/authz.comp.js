@@ -54,7 +54,7 @@ export const Authz = ({ network = "local" }) => {
   }
 
   useEffect(() => {
-    fcl.WalletUtils.onMessageFromFCL("FCL:VIEW:READY:RESPONSE", (data) => {
+    const unmount = fcl.WalletUtils.onMessageFromFCL("FCL:VIEW:READY:RESPONSE", (data) => {
       if (data.type === "FCL:VIEW:READY:RESPONSE") {
         const _signable = data.body
         setSignable(_signable)
@@ -62,6 +62,8 @@ export const Authz = ({ network = "local" }) => {
     })
 
     fcl.WalletUtils.sendMsgToFCL("FCL:VIEW:READY")
+
+    return unmount
   }, [])
 
   useEffect(() => {
@@ -119,7 +121,7 @@ export const Authz = ({ network = "local" }) => {
   
             signature = await signTransaction(message)
           }
-          
+
           if (!signature) {
               fcl.WalletUtils.decline("Ledger device did not sign this transaction.")
               setMessage("Please connect and unlock your Ledger device, open the Flow app and then press start.")
