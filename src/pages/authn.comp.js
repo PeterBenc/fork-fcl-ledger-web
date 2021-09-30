@@ -28,7 +28,6 @@ export const Authn = ({ network = "local" }) => {
 
     useEffect(() => {
       fcl.WalletUtils.onMessageFromFCL("FCL:VIEW:READY:RESPONSE", (data) => {
-        console.log("FCL:VIEW:READY:RESPONSE", JSON.parse(JSON.stringify(data)))
         if (data.type === "FCL:VIEW:READY:RESPONSE") {
           setServiceConfig(data.config.service)
           setAppConfig(data.config.app)
