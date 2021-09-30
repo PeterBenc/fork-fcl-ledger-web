@@ -106,8 +106,6 @@ export const Authz = ({ network = "local" }) => {
             let payloadSigners = findPayloadSigners(signable.voucher)
             let envelopeSigners = findEnvelopeSigners(signable.voucher)
 
-            console.log("payloadSigners", payloadSigners)
-            console.log("envelopeSigners", envelopeSigners)
   
             const isPayloadSigner = payloadSigners.includes(fcl.withPrefix(address))
             const isEnvelopeSigner = envelopeSigners.includes(fcl.withPrefix(address))
