@@ -123,13 +123,13 @@ export const Authz = ({ network = "local" }) => {
 
           setMessage("Signature: " + signature)
 
-          fcl.WalletUtils.approve({
-              f_type: "CompositeSignature",
-              f_vsn: "1.0.0",
-              addr: fcl.withPrefix(address),
-              keyId: keyId,
-              signature: signature,
-          })
+          fcl.WalletUtils.approve(
+            new fcl.WalletUtils.CompositeSignature(
+              fcl.withPrefix(address),
+              keyId,
+              signature
+            )
+          )
       })();
   }, [signable, account])
 
