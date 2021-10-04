@@ -23,15 +23,13 @@ export const Authn = ({ network = "local" }) => {
     const [appConfig, setAppConfig] = useState(null)
 
     const handleCancel = () => {
-      fcl.WalletUtils.sendMsgToFCL("FCL:VIEW:CLOSE")
+      fcl.WalletUtils.close()
     }
 
     useEffect(() => {
       const unmount = fcl.WalletUtils.onMessageFromFCL("FCL:VIEW:READY:RESPONSE", (data) => {
-        if (data.type === "FCL:VIEW:READY:RESPONSE") {
-          setServiceConfig(data.config.service)
-          setAppConfig(data.config.app)
-        }
+        setServiceConfig(data.config.service)
+        setAppConfig(data.config.app)
       })
   
       fcl.WalletUtils.sendMsgToFCL("FCL:VIEW:READY")

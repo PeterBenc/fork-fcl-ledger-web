@@ -1,11 +1,6 @@
 import React, {useEffect, useState} from 'react'
 import styled from 'styled-components'
 import * as fcl from "@onflow/fcl"
-import {
-  encodeTransactionPayload,
-  encodeTransactionEnvelope
-} from "@onflow/encode"
-import {useLocation} from "react-router-dom"
 import {signTransaction} from "../ledger/ledger.js";
 import {getKeyIdForKeyByAccountAddress} from "../flow/accounts.js";
 import LedgerDevice from '../components/LedgerDevice';
@@ -50,15 +45,13 @@ export const Authz = ({ network = "local" }) => {
   const [account, setAccount] = useState(null);
 
   const handleCancel = () => {
-    fcl.WalletUtils.sendMsgToFCL("FCL:VIEW:CLOSE")
+    fcl.WalletUtils.close()
   }
 
   useEffect(() => {
     const unmount = fcl.WalletUtils.onMessageFromFCL("FCL:VIEW:READY:RESPONSE", (data) => {
-      if (data.type === "FCL:VIEW:READY:RESPONSE") {
-        const _signable = data.body
-        setSignable(_signable)
-      } 
+      const _signable = data.body
+      setSignable(_signable)
     })
 
     fcl.WalletUtils.sendMsgToFCL("FCL:VIEW:READY")
