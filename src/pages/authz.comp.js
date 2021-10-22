@@ -22,6 +22,18 @@ const StyledMessage = styled.div`
   min-height: 4rem;
 `
 
+const StyledAlertMessage = styled.div`
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  min-height: 3rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  text-align: center;
+  color: white;
+  background-color: #FC4C2E;
+  box-sizing: border-box;
+`
+
 const StyledErrorMesssage = styled.div`
   padding: 1rem;
   border-radius: 0.5rem;
@@ -135,6 +147,7 @@ export const Authz = ({ network = "local" }) => {
 
   return (
       <StyledContainer>
+        {process.env.REACT_APP_ALERT_MESSAGE && <StyledAlertMessage dangerouslySetInnerHTML={{__html: process.env.REACT_APP_ALERT_MESSAGE}}/>}
         <LedgerDevice account={account} onGetAccount={account => setAccount(account)} handleCancel={handleCancel} />
         <StyledMessageWrapper>{ message && <StyledMessage>{message}</StyledMessage> }</StyledMessageWrapper>
       </StyledContainer>    

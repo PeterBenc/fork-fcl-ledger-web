@@ -12,9 +12,16 @@ const StyledContainer = styled.div`
   align-items: center;
 `
 
-const StyledMessage = styled.div`
-    font-size: 1rem;
-    text-align: center;
+const StyledAlertMessage = styled.div`
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  min-height: 3rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  text-align: center;
+  color: white;
+  background-color: #FC4C2E;
+  box-sizing: border-box;
 `
 
 export const Authn = ({ network = "local" }) => {
@@ -97,6 +104,7 @@ export const Authn = ({ network = "local" }) => {
 
     return (
         <StyledContainer>
+            {process.env.REACT_APP_ALERT_MESSAGE && <StyledAlertMessage dangerouslySetInnerHTML={{__html: process.env.REACT_APP_ALERT_MESSAGE}}/>}
             <LedgerDevice account={account} onGetAccount={account => setAccount(account)} handleCancel={handleCancel} />
         </StyledContainer>    
     )
