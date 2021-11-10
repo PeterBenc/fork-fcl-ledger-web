@@ -11,6 +11,7 @@ import {MainnetConfig} from "./config/mainnet.config"
 import {FaTimes} from "react-icons/fa"
 import {Authn} from "./pages/authn.comp"
 import {Authz} from "./pages/authz.comp"
+import {ShowKey} from "./pages/showkey.comp"
 
 window.fcl = fcl
 window.types = types
@@ -84,28 +85,33 @@ const handleCancel = () => {
 ReactDOM.render(
   <React.StrictMode>
     <GlobalStyle />
-    <Wrapper onClick={handleCancel}>
-      <Inner onClick={e => e.stopPropagation()}>
-        <CloseIcon onClick={handleCancel}/>
-        <Router>
-          <Route path="/local" component={LocalConfig} />
-          <Route path="/canarynet" component={CanarynetConfig} />
-          <Route path="/testnet" component={TestnetConfig} />
-          <Route path="/mainnet" component={MainnetConfig} />
+    <Router>
+      <Wrapper onClick={handleCancel}>
+        <Inner onClick={e => e.stopPropagation()}>
           <Switch>
-            <Route path="/local/authn" component={props => <Authn {...props} network="local" debug={DEBUG} />} exact />
-            <Route path="/canarynet/authn" component={props => <Authn {...props} network="canarynet" debug={DEBUG} />} exact />
-            <Route path="/testnet/authn" component={props => <Authn {...props} network="testnet" debug={DEBUG} />} exact />
-            <Route path="/mainnet/authn" component={props => <Authn {...props} network="mainnet" debug={DEBUG} />} exact />
-            <Route path="/local/authz" component={props => <Authz {...props} network="local" debug={DEBUG} />} exact />
-            <Route path="/canarynet/authz" component={props => <Authz {...props} network="canarynet" debug={DEBUG} />} exact />
-            <Route path="/testnet/authz" component={props => <Authz {...props} network="testnet" debug={DEBUG} />} exact />
-            <Route path="/mainnet/authz" component={props => <Authz {...props} network="mainnet" debug={DEBUG} />} exact />
-            <Route component={FourOhFour} />
+            <Route path="/showkey" component={ShowKey} exact />
+            <div>
+              <CloseIcon onClick={handleCancel}/>
+              <Route path="/local" component={LocalConfig} />
+              <Route path="/canarynet" component={CanarynetConfig} />
+              <Route path="/testnet" component={TestnetConfig} />
+              <Route path="/mainnet" component={MainnetConfig} />
+              <Switch>
+                <Route path="/local/authn" component={props => <Authn {...props} network="local" debug={DEBUG} />} exact />
+                <Route path="/canarynet/authn" component={props => <Authn {...props} network="canarynet" debug={DEBUG} />} exact />
+                <Route path="/testnet/authn" component={props => <Authn {...props} network="testnet" debug={DEBUG} />} exact />
+                <Route path="/mainnet/authn" component={props => <Authn {...props} network="mainnet" debug={DEBUG} />} exact />
+                <Route path="/local/authz" component={props => <Authz {...props} network="local" debug={DEBUG} />} exact />
+                <Route path="/canarynet/authz" component={props => <Authz {...props} network="canarynet" debug={DEBUG} />} exact />
+                <Route path="/testnet/authz" component={props => <Authz {...props} network="testnet" debug={DEBUG} />} exact />
+                <Route path="/mainnet/authz" component={props => <Authz {...props} network="mainnet" debug={DEBUG} />} exact />
+                <Route component={FourOhFour} />
+              </Switch>
+            </div>
           </Switch>
-        </Router>
-      </Inner>
-    </Wrapper>
+        </Inner>
+      </Wrapper>
+    </Router>
   </React.StrictMode>,
   document.getElementById('root')
 );

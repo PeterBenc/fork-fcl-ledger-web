@@ -10,96 +10,22 @@ import {
   setAddress as setAddressOnDevice,
   clearAddress as clearAddressOnDevice,
 } from "../ledger/ledger.js";
-
-const Button = styled.button`
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  width: 100%;
-  border: none;
-  border-radius: 0.5rem;
-  padding: 1rem 2rem 1rem 2rem;
-  font-size: 1rem;
-  text-align: center;
-  cursor: pointer;
-  background-color: #02D87E;
-  color: white;
-`;
-
-const Column = styled.div`
-  min-height: 20rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-`
-
-const Centered = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-`;
-
-const Row = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-`
-
-const LedgerTitle = styled.div`
-  margin-left: 0.5rem;
-  transform: translateY(4px);
-  font-weight: 400;
-  font-size: 2rem;
-  text-decoration: none;
-  color: #2a2825;
-`
-
-const LedgerImage = styled.img`
-  height: 4rem;
-`;
-
-const Text = styled.div`
-  margin-top: 1rem;
-  min-height: 3rem;
-  text-align: center;
-`;
-
-const Error = styled.div`
-  margin-top: 1rem;
-  min-height: 3rem;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  text-align: left;
-  color: white;
-  background-color: #FC4C2E;
-  box-sizing: border-box;
-`;
-
-const Message = styled.div`
-  margin-bottom: 2rem;
-  text-align: center;
-`;
-
-const TextCenter = styled.div`
-  text-align: center;
-`
-
-const HorizontalLine = styled.hr`
-  color: white;
-  border: 1px solid white;
-`
-
-const CONNECTION_ERROR_MESSAGE = 
-<div>
-  <TextCenter>Sorry, we couldn't connect to your Ledger. Please ensure that your Ledger is connected and the Flow app is open.</TextCenter><br />
-  <HorizontalLine /><br />
-  We recommend using Google Chrome to connect to your Ledger. If using Chrome on a Windows device, the common solution to Ledger connection issues is to:<br /><br />
-  - Close any other software that can interact with your Ledger Device (Ledger Live, other wallets etc)<br />
-  - Navigate to chrome://flags#new-usb-backend<br />
-  - Ensure that the Enable new USB backend flag is set to “Disabled”<br />
-  - Restart your browser and reconnect your Ledger device
-</div>
-
-const VERSION_ERROR_MESSAGE = "Your Flow app is out of date. Please update your Flow app to the latest version using Ledger Live."
+import {
+  CONNECTING_MESSAGE,
+  CONNECTION_ERROR_MESSAGE,
+  VERSION_ERROR_MESSAGE
+} from "../common/messages.js"
+import {
+  Button,
+  Column,
+  Centered,
+  Row,
+  LedgerTitle,
+  LedgerImage,
+  Text,
+  Error,
+  Message,
+} from "../common/common.js"
 
 const ViewDebug = ({ clearAddress }) => {
   return (
@@ -270,8 +196,7 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
             <Text>Retrieving Your Flow Account</Text>
         }
         {
-          hasUserStarted && initialConnectingToLedger && !address && 
-            <Text>Attempting to connect to your Ledger device.<br/><br/>Please connect and unlock your Ledger device and open the Flow app.</Text>
+          hasUserStarted && initialConnectingToLedger && !address && CONNECTING_MESSAGE
         }
         { error && <Error>{error}</Error> }
         { message && <Text>{message}</Text> }
