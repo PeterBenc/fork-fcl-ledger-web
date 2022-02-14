@@ -108,12 +108,12 @@ export const getNextAvailableAccountKeyPath = async (accounts, accountIndex) => 
   return getPath(accountIndex, nextAvailableAccountKeyIndex)
 }
 
-export const getLegacyAddressAndPublicKey = async () => {
-  return await getAddressAndPublicKeyByPath(LEGACY_PATH_ADDRESS)
+export const getLegacyAddressAndPublicKey = async (sign_algo = 0x03, hash_algo = 0x01) => {
+  return await getAddressAndPublicKeyByPath(LEGACY_PATH_ADDRESS, sign_algo, hash_algo)
 }
 
-export const getAddressAndPublicKeyByPath = async (path) => {
-  const publicKey = await getPublicKeyOnDevice(path)
+export const getAddressAndPublicKeyByPath = async (path, sign_algo = 0x03, hash_algo = 0x01) => {
+  const publicKey = await getPublicKeyOnDevice(path, sign_algo, hash_algo)
   console.log("getAddressAndPublicKeyByPath path=", path, " publicKey=", publicKey)
   let address = null
   if (publicKey) address = await getAccount(publicKey)
@@ -158,7 +158,7 @@ export const getAllAddressAndPublicKeysByPaths = async () => {
 
     let currentAddressPublicKey = null
     try {
-      currentAddressPublicKey = await getAddressAndPublicKeyByPath(currentPath)
+      currentAddressPublicKey = await getAddressAndPublicKeyByPath(currentPath, 0x03, 0x01)
     } catch (e) {
       console.log("getAddressAndPublicKeyByPath: NO ACCOUNT FOUND path=", currentPath)
     }
