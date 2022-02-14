@@ -2,15 +2,18 @@ import TransportWebHID from "@ledgerhq/hw-transport-webhid";
 import FlowApp from "@onflow/ledger";
 
 const SCHEME = 0x301;
-const PATH_ADDRESS = `m/44'/1'/${SCHEME}/0/0`;
+export const LEGACY_PATH_ADDRESS = `m/44'/1'/${SCHEME}/0/0`;
 const PATH_CLEAR = "m/0/0/0/0/0 ";
 const SLOT = 0;
 
 const errorCodeEmptyBuffer = 0x6982;
+export const getPath = (accountIndex, keyIndex) => {
+    return `m/44'/539'/${accountIndex}'/0/${keyIndex}`
+} 
 
 const getTransport = async () => {
     let transport = null;
-    console.log(`Trying to connect via WebUSB...`);
+    console.log(`Trying to connect via WebHID...`);
     try {
         transport = await TransportWebHID.create();
     } catch (e) {
@@ -74,13 +77,12 @@ export const appInfo = async () => {
     }
 };
 
-export const getAddressAndPublicKey = async () => {
-    console.log("LEDGER.getAddressAndPublicKey")
+export const getPublicKey = async (path, sign_algo = 0x03, hash_algo = 0x01) => {
+    console.log("LEDGER.getPublicKey")
 
     const transport = await getTransport();
     if (!transport) return;
 
-    let address;
     let publicKey;
 
     try {
@@ -91,23 +93,29 @@ export const getAddressAndPublicKey = async () => {
         console.log(`Device Locked: ${response.deviceLocked}`);
         console.log(`Test mode: ${response.testMode}`);
 
-        response = await app.getSlot(SLOT);
-        if (response.returnCode === FlowApp.ErrorCode.NoError) {
-            address = response.account;
-        } else if (response.returnCode === errorCodeEmptyBuffer) {
-            address = null;
-        } else {
-            console.log(`Error [${response.returnCode}] ${response.errorMessage}`);
-            return;
-        }
+        // response = await app.getSlot(SLOT);
+        // if (response.returnCode === FlowApp.ErrorCode.NoError) {
+        //     address = response.account;
+        // } else if (response.returnCode === errorCodeEmptyBuffer) {
+        //     address = null;
+        // } else {
+        //     console.log(`Error [${response.returnCode}] ${response.errorMessage}`);
+        //     return;
+        // }
 
-        console.log("Response received! (getSlot)");
-        console.log("Full response:");
-        console.log(response);
+        // console.log("Response received! (getSlot)");
+        // console.log("Full response:");
+        // console.log(response);
+
+        // { 
+        //     sign_algo, 
+        //     derivation_path = m / purpose' / coin_type' / account' / change / address_index,
+        //     hash_algo,
+        // }
 
         console.log("Sending Request..");
         console.log("Please click in the device");
-        response = await app.getAddressAndPubKey(PATH_ADDRESS);
+        response = await app.getAddressAndPubKey(path, sign_algo, hash_algo);
         if (response.returnCode !== FlowApp.ErrorCode.NoError) {
             console.log(`Error [${response.returnCode}] ${response.errorMessage}`);
             return;
@@ -124,13 +132,38 @@ export const getAddressAndPublicKey = async () => {
 
     const rawPublicKey = convertToRawPublicKey(publicKey);
 
-    return {
-        address: address,
-        publicKey: rawPublicKey,
-    };
+    return rawPublicKey
 };
 
-export const setAddress = async (address) => {    
+export const getAddress = async () => {
+    console.log("LEDGER.getAddress")
+
+    const transport = await getTransport();
+
+    try {
+        const app = new FlowApp(transport);
+
+        let response = await app.getVersion();
+        console.log(`App Version ${response.major}.${response.minor}.${response.patch}`);
+        console.log(`Device Locked: ${response.deviceLocked}`);
+        console.log(`Test mode: ${response.testMode}`);
+
+        response = await await app.getSlot(SLOT, LEGACY_PATH_ADDRESS);
+        if (response.returnCode !== FlowApp.ErrorCode.NoError) {
+            console.log(`Error [${response.returnCode}] ${response.errorMessage}`);
+            throw new Error();
+            return;
+        }
+
+        console.log("Response received!");
+        console.log("Full response:");
+        console.log(response);
+    } finally {
+        if (transport) transport.close();
+    }
+}
+
+export const setAddress = async (address, path) => {    
     console.log("LEDGER.setAddress")
 
     const transport = await getTransport();
@@ -143,7 +176,7 @@ export const setAddress = async (address) => {
         console.log(`Device Locked: ${response.deviceLocked}`);
         console.log(`Test mode: ${response.testMode}`);
 
-        response = await await app.setSlot(SLOT, address, PATH_ADDRESS);
+        response = await await app.setSlot(SLOT, address, path);
         if (response.returnCode !== FlowApp.ErrorCode.NoError) {
             console.log(`Error [${response.returnCode}] ${response.errorMessage}`);
             throw new Error();
@@ -185,7 +218,7 @@ export const clearAddress = async () => {
     }
 };
 
-export const showAddressAndPubKey = async () => {
+export const showAddressAndPubKey = async (sign_algo = 0x03, hash_algo = 0x01) => {
     console.log("LEDGER.showAddress")
 
     const transport = await getTransport();
@@ -193,7 +226,7 @@ export const showAddressAndPubKey = async () => {
     try {
         const app = new FlowApp(transport);
 
-        let response = await app.showAddressAndPubKey(PATH_ADDRESS);
+        let response = await app.showAddressAndPubKey(LEGACY_PATH_ADDRESS, sign_algo, hash_algo);
         console.log(`App Version ${response.major}.${response.minor}.${response.patch}`);
         console.log(`Device Locked: ${response.deviceLocked}`);
         console.log(`Test mode: ${response.testMode}`);
@@ -224,7 +257,7 @@ export const signTransaction = async (tx) => {
 
         const message = Buffer.from(tx, "hex");
         console.log("Sending Request..");
-        const response = await app.sign(PATH_ADDRESS, message);
+        const response = await app.sign(LEGACY_PATH_ADDRESS, message);
         console.log('Sign response: ', response);
         if (response.returnCode !== FlowApp.ErrorCode.NoError) {
             console.error(`Error [${response.returnCode}] ${response.errorMessage}`);
