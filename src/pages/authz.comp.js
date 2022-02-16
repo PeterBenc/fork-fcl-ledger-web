@@ -95,32 +95,32 @@ export const Authz = ({ network = "local" }) => {
           let signature;
 
           if (signable.voucher) {
-            const findPayloadSigners = (voucher) => {
-              // Payload Signers Are: (authorizers + proposer) - payer
-              let payload = new Set(voucher.authorizers)
-              payload.add(voucher.proposalKey.address)
-              payload.delete(voucher.payer)
-              return Array.from(payload).map(fcl.withPrefix)
-            }
+            // const findPayloadSigners = (voucher) => {
+            //   // Payload Signers Are: (authorizers + proposer) - payer
+            //   let payload = new Set(voucher.authorizers)
+            //   payload.add(voucher.proposalKey.address)
+            //   payload.delete(voucher.payer)
+            //   return Array.from(payload).map(fcl.withPrefix)
+            // }
             
-            const findEnvelopeSigners = (voucher) => {
-              // Envelope Signers Are: (payer)
-              let envelope = new Set([voucher.payer])
-              return Array.from(envelope).map(fcl.withPrefix)
-            }
+            // const findEnvelopeSigners = (voucher) => {
+            //   // Envelope Signers Are: (payer)
+            //   let envelope = new Set([voucher.payer])
+            //   return Array.from(envelope).map(fcl.withPrefix)
+            // }
   
-            let payloadSigners = findPayloadSigners(signable.voucher)
-            let envelopeSigners = findEnvelopeSigners(signable.voucher)
+            // let payloadSigners = findPayloadSigners(signable.voucher)
+            // let envelopeSigners = findEnvelopeSigners(signable.voucher)
 
   
-            const isPayloadSigner = payloadSigners.includes(fcl.withPrefix(address))
-            const isEnvelopeSigner = envelopeSigners.includes(fcl.withPrefix(address))
+            // const isPayloadSigner = payloadSigners.includes(fcl.withPrefix(address))
+            // const isEnvelopeSigner = envelopeSigners.includes(fcl.withPrefix(address))
   
-            if (!isPayloadSigner && !isEnvelopeSigner) {
-              setMessage(ADDRESS_MISMATCH_MESSAGE)
-              setAccount(null)
-              return;
-            }
+            // if (!isPayloadSigner && !isEnvelopeSigner) {
+            //   setMessage(ADDRESS_MISMATCH_MESSAGE)
+            //   setAccount(null)
+            //   return;
+            // }
 
             const message = fcl.WalletUtils.encodeMessageFromSignable(signable, fcl.withPrefix(address)).substring(64)
   
