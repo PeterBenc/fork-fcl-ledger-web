@@ -51,10 +51,13 @@ const ADDRESS_MISMATCH_MESSAGE =
   Please ensure the passphrase you used to unlock your Ledger is the same as the one used when authenticating with this application and try again.
 </StyledErrorMesssage>
 
-export const Authz = ({ network = "local" }) => {
+export const Authz = ({ location, network = "local" }) => {
   const [signable, setSignable] = useState("")
   const [message, setMessage] = useState("");
   const [account, setAccount] = useState(null);
+  
+  const qp = new URLSearchParams(location.search)
+  const authnAddress = qp.get("address")
 
   const handleCancel = () => {
     fcl.WalletUtils.close()
@@ -76,7 +79,9 @@ export const Authz = ({ network = "local" }) => {
           if (!signable) return;          
           if (!account) return;
 
-          const { address, publicKey } = account;
+          const { address, publicKey, path } = account;
+
+          console.log("PRE SIG => ", account)
 
           if (!publicKey || !address) {
             setMessage(DEFAULT_MESSAGE)
@@ -95,36 +100,9 @@ export const Authz = ({ network = "local" }) => {
           let signature;
 
           if (signable.voucher) {
-            const findPayloadSigners = (voucher) => {
-              // Payload Signers Are: (authorizers + proposer) - payer
-              let payload = new Set(voucher.authorizers)
-              payload.add(voucher.proposalKey.address)
-              payload.delete(voucher.payer)
-              return Array.from(payload).map(fcl.withPrefix)
-            }
-            
-            const findEnvelopeSigners = (voucher) => {
-              // Envelope Signers Are: (payer)
-              let envelope = new Set([voucher.payer])
-              return Array.from(envelope).map(fcl.withPrefix)
-            }
-  
-            let payloadSigners = findPayloadSigners(signable.voucher)
-            let envelopeSigners = findEnvelopeSigners(signable.voucher)
-
-  
-            const isPayloadSigner = payloadSigners.includes(fcl.withPrefix(address))
-            const isEnvelopeSigner = envelopeSigners.includes(fcl.withPrefix(address))
-  
-            if (!isPayloadSigner && !isEnvelopeSigner) {
-              setMessage(ADDRESS_MISMATCH_MESSAGE)
-              setAccount(null)
-              return;
-            }
-
             const message = fcl.WalletUtils.encodeMessageFromSignable(signable, fcl.withPrefix(address)).substring(64)
   
-            signature = await signTransaction(message)
+            signature = await signTransaction(message, path, 0x02, 0x01)
           }
 
           if (!signature) {
@@ -148,7 +126,13 @@ export const Authz = ({ network = "local" }) => {
   return (
       <StyledContainer>
         {process.env.REACT_APP_ALERT_MESSAGE && <StyledAlertMessage dangerouslySetInnerHTML={{__html: process.env.REACT_APP_ALERT_MESSAGE}}/>}
-        <LedgerDevice account={account} onGetAccount={account => setAccount(account)} handleCancel={handleCancel} />
+        <LedgerDevice 
+          account={account}
+          authnAddress={authnAddress}
+          network={network}
+          onGetAccount={setAccount}
+          handleCancel={handleCancel} 
+        />
         <StyledMessageWrapper>{ message && <StyledMessage>{message}</StyledMessage> }</StyledMessageWrapper>
       </StyledContainer>    
   )

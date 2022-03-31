@@ -71,31 +71,30 @@ export const getKeyIdForKeyByAccountAddress = async (address, publicKey) => {
   return key.index
 };
 
-
 //
 
-export const getNextAvailableAccountPath = async (accounts) => {
+export const getNextAvailableAccountPath = async (accounts, network) => {
   accounts = accounts.filter(account => !account.isLegacyAccount)
 
   let sortedAccountsByAccountIndex = accounts.sort((a, b) => a.accountIndex - b.accountIndex)
 
-  let minUnusedAccountIndex = sortedAccountsByAccountIndex[0].accountIndex
+  let minUnusedAccountIndex = sortedAccountsByAccountIndex[0] ? sortedAccountsByAccountIndex[0].accountIndex : 0
   sortedAccountsByAccountIndex.forEach(account => {
-    if (minUnusedAccountIndex + 1 === account.accountIndex) minUnusedAccountIndex = account.accountIndex
+    if (minUnusedAccountIndex === account.accountIndex) minUnusedAccountIndex = account.accountIndex + 1
   })
   let nextAvailableAccountIndex = minUnusedAccountIndex
   
   let accountsAtNextAvailableAccountIndex = accounts.map(account => account.accountIndex = nextAvailableAccountIndex) 
   let minUnusedKeyIndex = 0
   accountsAtNextAvailableAccountIndex.forEach(account => {
-    if (minUnusedKeyIndex + 1 === account.keyIndex) minUnusedKeyIndex = account.keyIndex
+    if (minUnusedKeyIndex === account.keyIndex) minUnusedKeyIndex = account.keyIndex + 1
   })
   let nextAvailableAccountKeyIndex = minUnusedKeyIndex
 
-  return getPath(nextAvailableAccountIndex, nextAvailableAccountKeyIndex)
+  return getPath(nextAvailableAccountIndex, nextAvailableAccountKeyIndex, network)
 }
 
-export const getNextAvailableAccountKeyPath = async (accounts, accountIndex) => {
+export const getNextAvailableAccountKeyPath = async (accounts, accountIndex, network) => {
   accounts = accounts.filter(account => !account.isLegacyAccount)
 
   let accountsAtAccountIndex = accounts.map(account => account.accountIndex = accountIndex) 
@@ -105,14 +104,14 @@ export const getNextAvailableAccountKeyPath = async (accounts, accountIndex) => 
   })
   let nextAvailableAccountKeyIndex = minUnusedKeyIndex
 
-  return getPath(accountIndex, nextAvailableAccountKeyIndex)
+  return getPath(accountIndex, nextAvailableAccountKeyIndex, network)
 }
 
-export const getLegacyAddressAndPublicKey = async (sign_algo = 0x03, hash_algo = 0x01) => {
+export const getLegacyAddressAndPublicKey = async (sign_algo = 0x02, hash_algo = 0x01) => {
   return await getAddressAndPublicKeyByPath(LEGACY_PATH_ADDRESS, sign_algo, hash_algo)
 }
 
-export const getAddressAndPublicKeyByPath = async (path, sign_algo = 0x03, hash_algo = 0x01) => {
+export const getAddressAndPublicKeyByPath = async (path, sign_algo = 0x02, hash_algo = 0x01) => {
   const publicKey = await getPublicKeyOnDevice(path, sign_algo, hash_algo)
   console.log("getAddressAndPublicKeyByPath path=", path, " publicKey=", publicKey)
   let address = null
@@ -124,17 +123,17 @@ export const getAddressAndPublicKeyByPath = async (path, sign_algo = 0x03, hash_
   }
 }
 
-export const getAllAddressAndPublicKeysByPaths = async () => {
+export const getAllAddressAndPublicKeysByPaths = async (network) => {
   let legacyAddressPublicKey = null
   try {
     legacyAddressPublicKey = await getLegacyAddressAndPublicKey()
   } catch (e) {
-    console.log("getAllAddressAndPublicKeysByPaths: NO lEGACY ACCOUNT")
+    console.log("getAllAddressAndPublicKeysByPaths: NO lEGACY ACCOUNT", LEGACY_PATH_ADDRESS)
   }
 
-  const MAX_ACCOUNT_GAP = 5
+  const MAX_ACCOUNT_GAP = 1
   let currentAccountGap = 0
-  const MAX_KEY_GAP = 5
+  const MAX_KEY_GAP = 1
   let currentKeyGap = 0
 
   let accountIndex = 0
@@ -143,9 +142,12 @@ export const getAllAddressAndPublicKeysByPaths = async () => {
   let accounts = {}
 
   if (legacyAddressPublicKey && legacyAddressPublicKey.address !== null) {
+    const acct = await fcl.account(legacyAddressPublicKey.address)
+
     accounts["legacy"] = [{
       address: legacyAddressPublicKey.address,
       publicKey: legacyAddressPublicKey.publicKey,
+      balance: acct.balance,
       accountIndex: null,
       keyIndex: null,
       path: LEGACY_PATH_ADDRESS,
@@ -154,31 +156,38 @@ export const getAllAddressAndPublicKeysByPaths = async () => {
   }
 
   while (currentAccountGap < MAX_ACCOUNT_GAP) {
-    const currentPath = getPath(accountIndex, keyIndex)
+    const currentPath = getPath(accountIndex, keyIndex, network)
 
     let currentAddressPublicKey = null
     try {
-      currentAddressPublicKey = await getAddressAndPublicKeyByPath(currentPath, 0x03, 0x01)
+      currentAddressPublicKey = await getAddressAndPublicKeyByPath(currentPath, 0x02, 0x01)
     } catch (e) {
       console.log("getAddressAndPublicKeyByPath: NO ACCOUNT FOUND path=", currentPath)
     }
 
-    if (currentAddressPublicKey.address !== null) {
+    if (currentAddressPublicKey?.address) {
       currentAccountGap = 0
       currentKeyGap = 0
+
+      const acct = await fcl.account(currentAddressPublicKey.address)
 
       let foundAccount = {
         address: currentAddressPublicKey.address,
         publicKey: currentAddressPublicKey.publicKey,
+        balance: acct.balance,
         accountIndex,
         keyIndex,
         path: currentPath,
         isLegacyAccount: false,
       }
 
-      accounts[accountIndex] = accounts[accountIndex] 
-        ? accounts[accountIndex].push(foundAccount)
-        : [foundAccount]
+      if (accounts[accountIndex]) {
+        accounts[accountIndex].push(foundAccount)
+      } else {
+        accounts[accountIndex] = [foundAccount]
+      }
+
+      console.log("accounts", accounts)
 
       keyIndex = keyIndex + 1
 
@@ -198,7 +207,11 @@ export const getAllAddressAndPublicKeysByPaths = async () => {
     }
   }
 
-  return Object.values(accounts).reduce((acc, curr) => {
-    acc.join(curr)
+  let ret = Object.values(accounts).reduce((acc, curr) => {
+    return acc.concat(curr)
   }, [])
+
+  console.log("ACCOUNTS =>>>> ", accounts, ret)
+
+  return ret
 }

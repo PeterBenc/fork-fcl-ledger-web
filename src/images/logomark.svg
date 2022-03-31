@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="411px" height="411px" viewBox="0 0 411 411" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 63.1 (92452) - https://sketch.com -->
+    <title>Group 8</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <polygon id="path-1" points="0 411 411 411 411 0 0 0"></polygon>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Artboard-Copy-35" transform="translate(-187.000000, -5964.000000)">
+            <g id="Group-8" transform="translate(187.000000, 5964.000000)">
+                <path d="M411,205.5 C411,318.99354 318.99354,411 205.5,411 C92.00646,411 0,318.99354 0,205.5 C0,92.00646 92.00646,0 205.5,0 C318.99354,0 411,92.00646 411,205.5" id="Fill-1" fill="#00EF8B"></path>
+                <mask id="mask-2" fill="white">
+                    <use xlink:href="#path-1"></use>
+                </mask>
+                <g id="Clip-4"></g>
+                <polygon id="Fill-3" fill="#FFFFFF" mask="url(#mask-2)" points="238 231 296 231 296 173 238 173"></polygon>
+                <path d="M179.820055,253 C179.820055,265.050278 170.052649,274.817433 158.006182,274.817433 C145.955593,274.817433 136.184066,265.050278 136.184066,253 C136.184066,240.949722 145.955593,231.182567 158.006182,231.182567 L179.820055,231.182567 L179.820055,173 L158.006182,173 C113.888005,173 78,208.88708 78,253 C78,297.11292 113.888005,333 158.006182,333 C202.111995,333 238,297.11292 238,253 L238,231.182567 L179.820055,231.182567 L179.820055,253 Z" id="Fill-5" fill="#FFFFFF" mask="url(#mask-2)"></path>
+                <path d="M259.748973,144.002739 L325,144.002739 L325,86 L259.748973,86 C215.774472,86 180,121.776162 180,165.752739 L180,173 L238,173 L238,165.752739 C238.012325,153.747922 247.740615,144.015064 259.748973,144.002739" id="Fill-6" fill="#FFFFFF" mask="url(#mask-2)"></path>
+                <polygon id="Fill-7" fill="#16FF99" mask="url(#mask-2)" points="180 231 237.995892 231 238 231 238 173 237.995892 173 180 173"></polygon>
+            </g>
+        </g>
+    </g>
+</svg>

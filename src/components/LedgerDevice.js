@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import * as fcl from "@onflow/fcl"
 import semver from "semver"
 import FlowLogo from "../images/logo.svg"
+import Logomark from "../images/logomark.svg"
 import {getAccount, createAccount} from "../flow/accounts"
 import {
   getVersion as getVersionOnDevice,
@@ -23,6 +24,14 @@ import {
 } from "../common/messages.js"
 import {
   Button,
+  OutlineButton,
+  Balance,
+  AccountList,
+  AccountItem,
+  AccountItemAddress,
+  AccountItemBalance,
+  Currency,
+  HorizontalSpacer,
   Column,
   Centered,
   Row,
@@ -31,6 +40,7 @@ import {
   Text,
   Error,
   Message,
+  LogoSpinner,
 } from "../common/common.js"
 
 const ViewDebug = ({ clearAddress }) => {
@@ -52,49 +62,60 @@ const ViewStart = ({ setHasUserStarted, clearAddress, debug }) => {
   );
 };
 
-const ViewAddressSelector = ({ accountsAndPublicKeys, setSelectedAccount, setIsCreatingAccount, setAddressOnDevice, setMessage, isCreatingAccount }) => {
+const ViewAddressSelector = ({
+  accountsAndPublicKeys,
+  setSelectedAccount,
+  setIsCreatingAccount,
+  setAddressOnDevice,
+  setMessage,
+  setAccountsAndPublicKeys,
+  isCreatingAccount,
+  network
+}) => {
 
   const createNewAccount = async () => {
     setIsCreatingAccount(true);
     setMessage("Please wait a few moments. The account creation request is being processed.")
 
-    const nextAvailablePath = getNextAvailableAccountPath(accountsAndPublicKeys)
-    const nextAvailablePublicKey = getPublicKeyOnDevice(nextAvailablePath)
+    const nextAvailablePath = await getNextAvailableAccountPath(accountsAndPublicKeys, network)
+    console.log("nextAvailablePathnextAvailablePath", nextAvailablePath)
+    const nextAvailablePublicKey = await getPublicKeyOnDevice(nextAvailablePath)
 
     const address = await createAccount(nextAvailablePublicKey)
 
-    setAddressOnDevice(address, nextAvailablePublicKey, nextAvailablePath)
+    setAccountsAndPublicKeys(null)
+    setMessage(null)
+    setIsCreatingAccount(false)
+
+    // setAddressOnDevice(address, nextAvailablePublicKey, nextAvailablePath)
   };
 
   return (
     <Centered>
       {/* { !isCreatingAccount && <Message>The public key on this device is not yet paired with a Flow account. Click the button below to create a new Flow account for this public key.</Message> } */}
-      { !isCreatingAccount && accountsAndPublicKeys && accountsAndPublicKeys.map(acct =>
-         <Button onClick={() => setSelectedAccount(acct)}>{acct.address}</Button>
-      )}
+
+      <AccountList>
+        { !isCreatingAccount && accountsAndPublicKeys && accountsAndPublicKeys.map(acct => (
+          <AccountItem onClick={() => setSelectedAccount(acct)} key={acct.address}>
+            <AccountItemAddress>{fcl.withPrefix(acct.address)}</AccountItemAddress>
+            <AccountItemBalance>{acct.balance / 10**8}<Currency>FLOW</Currency></AccountItemBalance>
+          </AccountItem>
+        ))}
+      </AccountList>
+      { !isCreatingAccount && accountsAndPublicKeys && accountsAndPublicKeys.length > 0 && <HorizontalSpacer />}
       { !isCreatingAccount && <Button onClick={createNewAccount}>Create New Account</Button> }
     </Centered>
   );
 }
 
-// const ViewGetAddress = ({ setNewAddress, isCreatingAccount, setIsCreatingAccount, setMessage, publicKey }) => {
-
-//   const createNewAccount = async () => {
-//     setIsCreatingAccount(true);
-//     setMessage("Please wait a few moments. The account creation request is being processed.")
-//     const address = await createAccount(publicKey);
-//     setNewAddress(address);
-//   };
-
-//   return (
-//     <Centered>
-//       { !isCreatingAccount && <Message>The public key on this device is not yet paired with a Flow account. Click the button below to create a new Flow account for this public key.</Message> }
-//       { !isCreatingAccount && <Button onClick={() => createNewAccount()}>Create New Account</Button> }
-//     </Centered>
-//   );
-// };
-
-const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
+const LedgerDevice = ({
+  account,
+  authnAddress = null,
+  network,
+  onGetAccount,
+  handleCancel,
+  debug
+}) => {
   const [hasUserStarted, setHasUserStarted] = useState(false);
   const [initialConnectingToLedger, setInitialConnectingToLedger] = useState(false)
 
@@ -137,12 +158,15 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
     (async function getAccountFromDevice() {
         if (account) return;
         if (!hasUserStarted) return;
+        if (isCreatingAccount) return;
         // if (address || publicKey) return;
         
         setInitialConnectingToLedger(true)
 
         try {
-          let appVersion = await getVersionOnDevice();
+          let appVersion = await getVersionOnDevice()
+
+          console.log("appVersion", appVersion)
 
           if (!(semver.gte(appVersion, process.env.REACT_APP_FLOW_APP_VERSION))) {
             setHasUserStarted(false)
@@ -152,7 +176,7 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
           }
  
           if (error === CONNECTION_ERROR_MESSAGE) {
-            setError(null);
+            setError(null)
           }
         } catch(e) {
           console.error(e)
@@ -175,26 +199,39 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
           // return
         }
 
-        try {
-          let accountsAndPublicKeys = await getAllAddressAndPublicKeysByPaths();
+        let foundAccountsAndPublicKeys;
+        if (!accountsAndPublicKeys) {
+          try {
+            foundAccountsAndPublicKeys = await getAllAddressAndPublicKeysByPaths(network);
 
-          if (error === CONNECTION_ERROR_MESSAGE) {
-            setError(null);
+            if (error === CONNECTION_ERROR_MESSAGE) {
+              setError(null);
+            }
+
+            if (foundAccountsAndPublicKeys) setAccountsAndPublicKeys(foundAccountsAndPublicKeys)
+          } catch(e) {
+            console.error(e)
+            setHasUserStarted(false)
+            setError(CONNECTION_ERROR_MESSAGE)
+            return
           }
+        }
 
-          setAccountsAndPublicKeys(accountsAndPublicKeys)
-        } catch(e) {
-          console.error(e)
-          setHasUserStarted(false)
-          setError(CONNECTION_ERROR_MESSAGE)
+        if (!selectedAccount && !authnAddress) {
           return
         }
 
-        if (!selectedAccount) {
-          return
+        if (!selectedAccount && authnAddress) {
+          let foundAccount = foundAccountsAndPublicKeys.find(acct => fcl.withPrefix(acct.address) === fcl.withPrefix(authnAddress))
+          console.log("foundAccountsAndPublicKeys", foundAccountsAndPublicKeys)
+          console.log("foundAccount", foundAccount)
+          setSelectedAccount(foundAccount)
+          return;
         }
 
-        let selectedAccountAddressFromHardwareAPI = await getAccount(selectedAccount.address);
+        let selectedAccountAddressFromHardwareAPI = await getAccount(selectedAccount.publicKey);
+
+        console.log("selectedAccountAddressFromHardwareAPI", selectedAccountAddressFromHardwareAPI)
       
         if (
           existingAddressOnDevice &&
@@ -212,23 +249,29 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
         }
   
         if (existingAddressOnDevice && existingAddressOnDevice === selectedAccountAddressFromHardwareAPI) {
-          onGetAccount({ address: existingAddressOnDevice, publicKey: selectedAccountAddressFromHardwareAPI });
-          setAddress(existingAddressOnDevice);
+          onGetAccount({
+            address: existingAddressOnDevice,
+            publicKey: selectedAccountAddressFromHardwareAPI,
+            path: selectedAccount.path,
+          })
+          setAddress(existingAddressOnDevice)
         }
 
         if (!existingAddressOnDevice && selectedAccountAddressFromHardwareAPI) {
-          onGetAccount({ address: selectedAccountAddressFromHardwareAPI, publicKey: selectedAccount.publicKey });
-          setAddress(selectedAccountAddressFromHardwareAPI);
+          onGetAccount({ 
+            address: selectedAccountAddressFromHardwareAPI,
+            publicKey: selectedAccount.publicKey,
+            path: selectedAccount.path,
+          })
+          setAddress(selectedAccountAddressFromHardwareAPI)
         }
 
-        // setPublicKey(existingPublicKey);
-
     })();
-  }, [hasUserStarted, address, publicKey, account, onGetAccount]);
+  }, [hasUserStarted, address, publicKey, account, onGetAccount, selectedAccount, isCreatingAccount])
 
   return (
     <Column>
-      <Centered>
+      <Centered style={{ height: "4rem" }}>
         <Row><LedgerImage src={FlowLogo} /><LedgerTitle>Ledger</LedgerTitle></Row>
         <Text>{address && `Address: ${fcl.withPrefix(address)}`}</Text>
       </Centered>
@@ -247,19 +290,32 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
         } */}
 
         {
+          hasUserStarted && accountsAndPublicKeys && !isCreatingAccount && !selectedAccount && 
+            <Text>Please select an account to login.</Text>
+        }
+
+        {
           hasUserStarted && accountsAndPublicKeys && !selectedAccount && 
             <ViewAddressSelector 
+              accountsAndPublicKeys={accountsAndPublicKeys}
               isCreatingAccount={isCreatingAccount}
               setIsCreatingAccount={setIsCreatingAccount}
+              setSelectedAccount={setSelectedAccount}s
               setAddressOnDevice={setNewAddress}
+              setAccountsAndPublicKeys={setAccountsAndPublicKeys}
               setMessage={setMessage} 
+              network={network}
             />
         }
 
         {
           hasUserStarted && !initialConnectingToLedger && !accountsAndPublicKeys &&
-            <Text>Retrieving Your Flow Accounts</Text>
+            <>
+              <Text>Discovering your Flow accounts.<br/>This may take some time.</Text>
+              <LogoSpinner src={Logomark} />
+            </>
         }
+
         {
           hasUserStarted && initialConnectingToLedger && !address && CONNECTING_MESSAGE
         }

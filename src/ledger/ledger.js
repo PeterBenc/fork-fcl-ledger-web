@@ -7,8 +7,8 @@ const PATH_CLEAR = "m/0/0/0/0/0 ";
 const SLOT = 0;
 
 const errorCodeEmptyBuffer = 0x6982;
-export const getPath = (accountIndex, keyIndex) => {
-    return `m/44'/539'/${accountIndex}'/0/${keyIndex}`
+export const getPath = (accountIndex, keyIndex, network) => {
+    return `m/44'/${network === "mainnet" ? "539'" : "1'"}/${accountIndex}'/0/${keyIndex}`
 } 
 
 const getTransport = async () => {
@@ -77,7 +77,7 @@ export const appInfo = async () => {
     }
 };
 
-export const getPublicKey = async (path, sign_algo = 0x03, hash_algo = 0x01) => {
+export const getPublicKey = async (path, sign_algo = 0x02, hash_algo = 0x01) => {
     console.log("LEDGER.getPublicKey")
 
     const transport = await getTransport();
@@ -126,6 +126,8 @@ export const getPublicKey = async (path, sign_algo = 0x03, hash_algo = 0x01) => 
         console.log(response);
 
         publicKey = response.publicKey;
+    } catch(e) {
+        console.error(`getPublicKey ERROR: ${e} path=${path} sign_algo=${sign_algo}, hash_algo=${hash_algo}`)
     } finally {
         if (transport) transport.close();
     }
@@ -239,7 +241,7 @@ export const showAddressAndPubKey = async (sign_algo = 0x03, hash_algo = 0x01) =
     }
 }
 
-export const signTransaction = async (tx) => {
+export const signTransaction = async (tx, path = LEGACY_PATH_ADDRESS, sign_algo = 0x03, hash_algo = 0x01) => {
     console.log("LEDGER.signTransaction")
 
     const transport = await getTransport();
@@ -257,7 +259,7 @@ export const signTransaction = async (tx) => {
 
         const message = Buffer.from(tx, "hex");
         console.log("Sending Request..");
-        const response = await app.sign(LEGACY_PATH_ADDRESS, message);
+        const response = await app.sign(path, message, sign_algo, hash_algo);
         console.log('Sign response: ', response);
         if (response.returnCode !== FlowApp.ErrorCode.NoError) {
             console.error(`Error [${response.returnCode}] ${response.errorMessage}`);
