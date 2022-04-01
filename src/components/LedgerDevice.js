@@ -78,7 +78,6 @@ const ViewAddressSelector = ({
     setMessage("Please wait a few moments. The account creation request is being processed.")
 
     const nextAvailablePath = await getNextAvailableAccountPath(accountsAndPublicKeys, network)
-    console.log("nextAvailablePathnextAvailablePath", nextAvailablePath)
     const nextAvailablePublicKey = await getPublicKeyOnDevice(nextAvailablePath)
 
     const address = await createAccount(nextAvailablePublicKey)

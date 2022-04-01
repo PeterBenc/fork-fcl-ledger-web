@@ -113,7 +113,6 @@ export const getLegacyAddressAndPublicKey = async (sign_algo = 0x02, hash_algo =
 
 export const getAddressAndPublicKeyByPath = async (path, sign_algo = 0x02, hash_algo = 0x01) => {
   const publicKey = await getPublicKeyOnDevice(path, sign_algo, hash_algo)
-  console.log("getAddressAndPublicKeyByPath path=", path, " publicKey=", publicKey)
   let address = null
   if (publicKey) address = await getAccount(publicKey)
 
@@ -127,9 +126,7 @@ export const getAllAddressAndPublicKeysByPaths = async (network) => {
   let legacyAddressPublicKey = null
   try {
     legacyAddressPublicKey = await getLegacyAddressAndPublicKey()
-  } catch (e) {
-    console.log("getAllAddressAndPublicKeysByPaths: NO lEGACY ACCOUNT", LEGACY_PATH_ADDRESS)
-  }
+  } catch (e) {}
 
   const MAX_ACCOUNT_GAP = 1
   let currentAccountGap = 0
@@ -161,9 +158,7 @@ export const getAllAddressAndPublicKeysByPaths = async (network) => {
     let currentAddressPublicKey = null
     try {
       currentAddressPublicKey = await getAddressAndPublicKeyByPath(currentPath, 0x02, 0x01)
-    } catch (e) {
-      console.log("getAddressAndPublicKeyByPath: NO ACCOUNT FOUND path=", currentPath)
-    }
+    } catch (e) {}
 
     if (currentAddressPublicKey?.address) {
       currentAccountGap = 0
@@ -187,8 +182,6 @@ export const getAllAddressAndPublicKeysByPaths = async (network) => {
         accounts[accountIndex] = [foundAccount]
       }
 
-      console.log("accounts", accounts)
-
       keyIndex = keyIndex + 1
 
     } else {
@@ -210,8 +203,6 @@ export const getAllAddressAndPublicKeysByPaths = async (network) => {
   let ret = Object.values(accounts).reduce((acc, curr) => {
     return acc.concat(curr)
   }, [])
-
-  console.log("ACCOUNTS =>>>> ", accounts, ret)
 
   return ret
 }
