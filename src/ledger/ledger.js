@@ -1,5 +1,6 @@
 import TransportWebHID from "@ledgerhq/hw-transport-webhid";
 import FlowApp from "@onflow/ledger";
+import * as fcl from "@onflow/fcl";
 
 const SCHEME = 0x301;
 export const LEGACY_PATH_ADDRESS = `m/44'/1'/${SCHEME}/0/0`;
@@ -165,7 +166,7 @@ export const getAddress = async () => {
     }
 }
 
-export const setAddress = async (address, path) => {    
+export const setAddress = async (address, path = LEGACY_PATH_ADDRESS, sign_algo = 0x02, hash_algo = 0x01) => {    
     console.log("LEDGER.setAddress")
 
     const transport = await getTransport();
@@ -178,7 +179,7 @@ export const setAddress = async (address, path) => {
         console.log(`Device Locked: ${response.deviceLocked}`);
         console.log(`Test mode: ${response.testMode}`);
 
-        response = await await app.setSlot(SLOT, address, path);
+        response = await app.setSlot(SLOT, fcl.sansPrefix(address), path, sign_algo, hash_algo);
         if (response.returnCode !== FlowApp.ErrorCode.NoError) {
             console.log(`Error [${response.returnCode}] ${response.errorMessage}`);
             throw new Error();
@@ -220,7 +221,7 @@ export const clearAddress = async () => {
     }
 };
 
-export const showAddressAndPubKey = async (sign_algo = 0x03, hash_algo = 0x01) => {
+export const showAddressAndPubKey = async (path = LEGACY_PATH_ADDRESS, sign_algo = 0x03, hash_algo = 0x01) => {
     console.log("LEDGER.showAddress")
 
     const transport = await getTransport();
@@ -228,7 +229,7 @@ export const showAddressAndPubKey = async (sign_algo = 0x03, hash_algo = 0x01) =
     try {
         const app = new FlowApp(transport);
 
-        let response = await app.showAddressAndPubKey(LEGACY_PATH_ADDRESS, sign_algo, hash_algo);
+        let response = await app.showAddressAndPubKey(path, sign_algo, hash_algo);
         console.log(`App Version ${response.major}.${response.minor}.${response.patch}`);
         console.log(`Device Locked: ${response.deviceLocked}`);
         console.log(`Test mode: ${response.testMode}`);
