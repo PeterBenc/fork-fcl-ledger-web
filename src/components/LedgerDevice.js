@@ -78,7 +78,7 @@ const ViewAddressSelector = ({
     setMessage("Please wait a few moments. The account creation request is being processed.")
 
     const nextAvailablePath = await getNextAvailableAccountPath(accountsAndPublicKeys, network)
-    const nextAvailablePublicKey = await getPublicKeyOnDevice(nextAvailablePath)
+    const nextAvailablePublicKey = await getPublicKeyOnDevice(nextAvailablePath, 0x02, 0x01)
 
     const address = await createAccount(nextAvailablePublicKey)
 
@@ -86,13 +86,11 @@ const ViewAddressSelector = ({
     setMessage(null)
     setIsCreatingAccount(false)
 
-    // setAddressOnDevice(address, nextAvailablePublicKey, nextAvailablePath)
+    setAddressOnDevice(address, nextAvailablePath)
   };
 
   return (
     <Centered>
-      {/* { !isCreatingAccount && <Message>The public key on this device is not yet paired with a Flow account. Click the button below to create a new Flow account for this public key.</Message> } */}
-
       <AccountList>
         { !isCreatingAccount && accountsAndPublicKeys && accountsAndPublicKeys.map(acct => (
           <AccountItem onClick={() => setSelectedAccount(acct)} key={acct.address}>
@@ -158,7 +156,6 @@ const LedgerDevice = ({
         if (account) return;
         if (!hasUserStarted) return;
         if (isCreatingAccount) return;
-        // if (address || publicKey) return;
         
         setInitialConnectingToLedger(true)
 
@@ -190,13 +187,7 @@ const LedgerDevice = ({
         let existingAddressOnDevice
         try {
           existingAddressOnDevice = await getAddressOnDevice()
-        } catch(e) {
-          // console.error(e)
-          // setHasUserStarted(false)
-          // setInitialConnectingToLedger(false)
-          // setError(CONNECTION_ERROR_MESSAGE)
-          // return
-        }
+        } catch(e) {}
 
         let foundAccountsAndPublicKeys;
         if (!accountsAndPublicKeys) {
@@ -222,16 +213,12 @@ const LedgerDevice = ({
 
         if (!selectedAccount && authnAddress) {
           let foundAccount = foundAccountsAndPublicKeys.find(acct => fcl.withPrefix(acct.address) === fcl.withPrefix(authnAddress))
-          console.log("foundAccountsAndPublicKeys", foundAccountsAndPublicKeys)
-          console.log("foundAccount", foundAccount)
           setSelectedAccount(foundAccount)
           return;
         }
 
         let selectedAccountAddressFromHardwareAPI = await getAccount(selectedAccount.publicKey);
 
-        console.log("selectedAccountAddressFromHardwareAPI", selectedAccountAddressFromHardwareAPI)
-      
         if (
           existingAddressOnDevice &&
           selectedAccountAddressFromHardwareAPI &&
@@ -257,6 +244,14 @@ const LedgerDevice = ({
         }
 
         if (!existingAddressOnDevice && selectedAccountAddressFromHardwareAPI) {
+          try {
+            setMessage("Change in stored address detected. Verify the corresponding address on your device.")
+            await setAddressOnDevice(selectedAccountAddressFromHardwareAPI, selectedAccount.path);
+            setMessage(null)
+          } catch (e) {
+            handleCancel()
+          }
+
           onGetAccount({ 
             address: selectedAccountAddressFromHardwareAPI,
             publicKey: selectedAccount.publicKey,
@@ -282,12 +277,7 @@ const LedgerDevice = ({
               clearAddress={() => clearAddressOnDevice()}
               debug={debug} />
         }
-
-        {/* {
-          hasUserStarted && publicKey && !address && 
-            <ViewGetAddress isCreatingAccount={isCreatingAccount} setIsCreatingAccount={setIsCreatingAccount} setNewAddress={(address) => setNewAddress(address, publicKey, path)} setMessage={setMessage} publicKey={publicKey} />
-        } */}
-
+        
         {
           hasUserStarted && accountsAndPublicKeys && !isCreatingAccount && !selectedAccount && 
             <Text>Please select an account to login.</Text>
