@@ -1,7 +1,8 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import styled from 'styled-components'
 import semver from "semver"
 import FlowLogo from "../images/logo.svg";
+import LedgerDevice from '../components/LedgerDevice';
 import {showAddressAndPubKey, getVersion} from "../ledger/ledger.js";
 import {
   INITIAL_PK_MESSAGE,
@@ -28,13 +29,20 @@ const StyledContainer = styled.div`
   justify-content: space-between;
 `
 
-export const ShowKey = () => {
-  const [message, setMessage] = useState(INITIAL_PK_MESSAGE);
+export const ShowKey = ({ network }) => {
+  const [account, setAccount] = useState(null);
+  const [message, setMessage] = useState(null);
   const [error, setError] = useState(null);
 
-  const handleButtonClick = async () => {
-    setMessage(CONNECTING_MESSAGE)
+  const handleShowKey = async () => {
+    setMessage(null)
     setError(null)
+
+    console.log("ShowKey account=", account)
+
+    if (!account) return;
+
+    const { address, publicKey, path } = account;
 
     try {
       let appVersion = await getVersion();
@@ -55,23 +63,34 @@ export const ShowKey = () => {
 
     try {
       setMessage(VIEW_PK_MESSAGE)
-      await showAddressAndPubKey()
+
+      await showAddressAndPubKey(path, 0x0201)
     } catch(e) {
       console.error(e)
-      setMessage(INITIAL_PK_MESSAGE)
+      setMessage(null)
       return
     }
   }
 
+  useEffect(() => {
+    handleShowKey()
+  }, [account])
+
   return (
       <StyledContainer>
-        <Centered>
+        {/* <Centered>
             <Row><LedgerImage src={FlowLogo} /><LedgerTitle>Ledger</LedgerTitle></Row>
             { error && <Error>{ error }</Error> }
             { message && !error && <Text>{ message }</Text>}
-        </Centered>
+        </Centered> */}
+        <LedgerDevice
+          account={account}
+          network={network}
+          onGetAccount={setAccount}
+          handleCancel={() => setAccount(null)} 
+        />
         <Centered>
-            <Button onClick={handleButtonClick}>Show Public Key</Button>
+          { message && !error && <Text>{ message }</Text>}
         </Centered>
       </StyledContainer>    
   )

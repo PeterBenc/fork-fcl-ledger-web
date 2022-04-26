@@ -57,6 +57,10 @@ export const Authn = ({ network = "local" }) => {
 
             const keyId = await getKeyIdForKeyByAccountAddress(address, publicKey)
 
+            console.log("address =>> ", address)
+            console.log("publicKey =>> ", publicKey)
+            console.log("keyId =>> ", keyId)
+
             fcl.WalletUtils.approve({
               f_type: "AuthnResponse",
               f_vsn: "1.0.0",

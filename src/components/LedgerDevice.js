@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import styled from 'styled-components'
 import * as fcl from "@onflow/fcl"
+import { log } from "../common/logger"
 import semver from "semver"
 import FlowLogo from "../images/logo.svg"
 import Logomark from "../images/logomark.svg"
@@ -78,15 +79,13 @@ const ViewAddressSelector = ({
     setMessage("Please wait a few moments. The account creation request is being processed.")
 
     const nextAvailablePath = await getNextAvailableAccountPath(accountsAndPublicKeys, network)
-    const nextAvailablePublicKey = await getPublicKeyOnDevice(nextAvailablePath, 0x02, 0x01)
+    const nextAvailablePublicKey = await getPublicKeyOnDevice(nextAvailablePath, 0x0201)
 
     const address = await createAccount(nextAvailablePublicKey)
 
     setAccountsAndPublicKeys(null)
     setMessage(null)
     setIsCreatingAccount(false)
-
-    setAddressOnDevice(address, nextAvailablePath)
   };
 
   return (
@@ -162,7 +161,7 @@ const LedgerDevice = ({
         try {
           let appVersion = await getVersionOnDevice()
 
-          console.log("appVersion", appVersion)
+          log("appVersion", appVersion)
 
           if (!(semver.gte(appVersion, process.env.REACT_APP_FLOW_APP_VERSION))) {
             setHasUserStarted(false)
@@ -219,6 +218,12 @@ const LedgerDevice = ({
 
         let selectedAccountAddressFromHardwareAPI = await getAccount(selectedAccount.publicKey);
 
+        // console.log(
+        //   "existingAddressOnDevice=", existingAddressOnDevice,
+        //   " selectedAccountAddressFromHardwareAPI=", selectedAccountAddressFromHardwareAPI,
+        //   " existingAddressOnDevice=", existingAddressOnDevice,
+        // )
+
         if (
           existingAddressOnDevice &&
           selectedAccountAddressFromHardwareAPI &&
@@ -237,7 +242,7 @@ const LedgerDevice = ({
         if (existingAddressOnDevice && existingAddressOnDevice === selectedAccountAddressFromHardwareAPI) {
           onGetAccount({
             address: existingAddressOnDevice,
-            publicKey: selectedAccountAddressFromHardwareAPI,
+            publicKey: selectedAccount.publicKey,
             path: selectedAccount.path,
           })
           setAddress(existingAddressOnDevice)

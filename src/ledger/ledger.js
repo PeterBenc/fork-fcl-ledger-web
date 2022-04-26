@@ -1,6 +1,7 @@
 import TransportWebHID from "@ledgerhq/hw-transport-webhid";
 import FlowApp from "@onflow/ledger";
 import * as fcl from "@onflow/fcl";
+import { log } from "../common/logger";
 
 const SCHEME = 0x301;
 export const LEGACY_PATH_ADDRESS = `m/44'/1'/${SCHEME}/0/0`;
@@ -14,11 +15,11 @@ export const getPath = (accountIndex, keyIndex, network) => {
 
 const getTransport = async () => {
     let transport = null;
-    console.log(`Trying to connect via WebHID...`);
+    log(`Trying to connect via WebHID...`);
     try {
         transport = await TransportWebHID.create();
     } catch (e) {
-        console.log(e);
+        log(e);
     }
     return transport;
 };
@@ -33,19 +34,19 @@ export const getVersion = async () => {
         const app = new FlowApp(transport);
 
         // now it is possible to access all commands in the app
-        console.log("Sending Request..");
+        log("Sending Request..");
         const response = await app.getVersion();
         if (response.returnCode !== FlowApp.ErrorCode.NoError) {
-            console.log(`Error [${response.returnCode}] ${response.errorMessage}`);
+            log(`Error [${response.returnCode}] ${response.errorMessage}`);
             return;
         }
 
-        console.log("Response received!");
-        console.log(`App Version ${response.major}.${response.minor}.${response.patch}`);
-        console.log(`Device Locked: ${response.deviceLocked}`);
-        console.log(`Test mode: ${response.testMode}`);
-        console.log("Full response:");
-        console.log(response);
+        log("Response received!");
+        log(`App Version ${response.major}.${response.minor}.${response.patch}`);
+        log(`Device Locked: ${response.deviceLocked}`);
+        log(`Test mode: ${response.testMode}`);
+        log("Full response:");
+        log(response);
         
         major = response.major
         minor = response.minor
@@ -64,22 +65,22 @@ export const appInfo = async () => {
         const app = new FlowApp(transport);
 
         // now it is possible to access all commands in the app
-        console.log("Sending Request..");
+        log("Sending Request..");
         const response = await app.appInfo();
         if (response.returnCode !== FlowApp.ErrorCode.NoError) {
-            console.log(`Error [${response.returnCode}] ${response.errorMessage}`);
+            log(`Error [${response.returnCode}] ${response.errorMessage}`);
             return;
         }
 
-        console.log("Response received!");
-        console.log(response);
+        log("Response received!");
+        log(response);
     } finally {
         if (transport) transport.close();
     }
 };
 
-export const getPublicKey = async (path, sign_algo = 0x02, hash_algo = 0x01) => {
-    console.log("LEDGER.getPublicKey")
+export const getPublicKey = async (path, cryptoOptions = 0x0201) => {
+    log("LEDGER.getPublicKey")
 
     const transport = await getTransport();
     if (!transport) return;
@@ -90,45 +91,25 @@ export const getPublicKey = async (path, sign_algo = 0x02, hash_algo = 0x01) => 
         const app = new FlowApp(transport);
 
         let response = await app.getVersion();
-        console.log(`App Version ${response.major}.${response.minor}.${response.patch}`);
-        console.log(`Device Locked: ${response.deviceLocked}`);
-        console.log(`Test mode: ${response.testMode}`);
+        log(`App Version ${response.major}.${response.minor}.${response.patch}`);
+        log(`Device Locked: ${response.deviceLocked}`);
+        log(`Test mode: ${response.testMode}`);
 
-        // response = await app.getSlot(SLOT);
-        // if (response.returnCode === FlowApp.ErrorCode.NoError) {
-        //     address = response.account;
-        // } else if (response.returnCode === errorCodeEmptyBuffer) {
-        //     address = null;
-        // } else {
-        //     console.log(`Error [${response.returnCode}] ${response.errorMessage}`);
-        //     return;
-        // }
-
-        // console.log("Response received! (getSlot)");
-        // console.log("Full response:");
-        // console.log(response);
-
-        // { 
-        //     sign_algo, 
-        //     derivation_path = m / purpose' / coin_type' / account' / change / address_index,
-        //     hash_algo,
-        // }
-
-        console.log("Sending Request..");
-        console.log("Please click in the device");
-        response = await app.getAddressAndPubKey(path, sign_algo, hash_algo);
+        log("Sending Request..");
+        log("Please click in the device");
+        response = await app.getAddressAndPubKey(path, cryptoOptions);
         if (response.returnCode !== FlowApp.ErrorCode.NoError) {
-            console.log(`Error [${response.returnCode}] ${response.errorMessage}`);
+            log(`Error [${response.returnCode}] ${response.errorMessage}`);
             return;
         }
 
-        console.log("Response received! (getAddressAndPubKey)");
-        console.log("Full response:");
-        console.log(response);
+        log("Response received! (getAddressAndPubKey)");
+        log("Full response:");
+        log(response);
 
         publicKey = response.publicKey;
     } catch(e) {
-        console.error(`getPublicKey ERROR: ${e} path=${path} sign_algo=${sign_algo}, hash_algo=${hash_algo}`)
+        console.error(`getPublicKey ERROR: ${e} cryptoOptions=${cryptoOptions}`)
     } finally {
         if (transport) transport.close();
     }
@@ -139,35 +120,41 @@ export const getPublicKey = async (path, sign_algo = 0x02, hash_algo = 0x01) => 
 };
 
 export const getAddress = async () => {
-    console.log("LEDGER.getAddress")
+    log("LEDGER.getAddress")
 
     const transport = await getTransport();
 
+    let address;
     try {
         const app = new FlowApp(transport);
 
         let response = await app.getVersion();
-        console.log(`App Version ${response.major}.${response.minor}.${response.patch}`);
-        console.log(`Device Locked: ${response.deviceLocked}`);
-        console.log(`Test mode: ${response.testMode}`);
+        log(`App Version ${response.major}.${response.minor}.${response.patch}`);
+        log(`Device Locked: ${response.deviceLocked}`);
+        log(`Test mode: ${response.testMode}`);
 
-        response = await await app.getSlot(SLOT, LEGACY_PATH_ADDRESS);
+        response = await app.getSlot(SLOT);
+
         if (response.returnCode !== FlowApp.ErrorCode.NoError) {
-            console.log(`Error [${response.returnCode}] ${response.errorMessage}`);
+            log(`Error [${response.returnCode}] ${response.errorMessage}`);
             throw new Error();
             return;
         }
 
-        console.log("Response received!");
-        console.log("Full response:");
-        console.log(response);
+        address = response?.account
+
+        log("Response received!");
+        log("Full response:");
+        log(response);
     } finally {
         if (transport) transport.close();
     }
+
+    return address
 }
 
-export const setAddress = async (address, path = LEGACY_PATH_ADDRESS, sign_algo = 0x02, hash_algo = 0x01) => {    
-    console.log("LEDGER.setAddress")
+export const setAddress = async (address, path = LEGACY_PATH_ADDRESS, cryptoOptions = 0x0201) => {    
+    log("LEDGER.setAddress")
 
     const transport = await getTransport();
 
@@ -175,27 +162,27 @@ export const setAddress = async (address, path = LEGACY_PATH_ADDRESS, sign_algo 
         const app = new FlowApp(transport);
 
         let response = await app.getVersion();
-        console.log(`App Version ${response.major}.${response.minor}.${response.patch}`);
-        console.log(`Device Locked: ${response.deviceLocked}`);
-        console.log(`Test mode: ${response.testMode}`);
+        log(`App Version ${response.major}.${response.minor}.${response.patch}`);
+        log(`Device Locked: ${response.deviceLocked}`);
+        log(`Test mode: ${response.testMode}`);
 
-        response = await app.setSlot(SLOT, fcl.sansPrefix(address), path, sign_algo, hash_algo);
+        response = await app.setSlot(SLOT, fcl.sansPrefix(address), path, cryptoOptions);
         if (response.returnCode !== FlowApp.ErrorCode.NoError) {
-            console.log(`Error [${response.returnCode}] ${response.errorMessage}`);
+            log(`Error [${response.returnCode}] ${response.errorMessage}`);
             throw new Error();
             return;
         }
 
-        console.log("Response received!");
-        console.log("Full response:");
-        console.log(response);
+        log("Response received!");
+        log("Full response:");
+        log(response);
     } finally {
         if (transport) transport.close();
     }
 };
 
 export const clearAddress = async () => {
-    console.log("LEDGER.clearAddress")
+    log("LEDGER.clearAddress")
 
     const transport = await getTransport();
 
@@ -203,47 +190,47 @@ export const clearAddress = async () => {
         const app = new FlowApp(transport);
 
         let response = await app.getVersion();
-        console.log(`App Version ${response.major}.${response.minor}.${response.patch}`);
-        console.log(`Device Locked: ${response.deviceLocked}`);
-        console.log(`Test mode: ${response.testMode}`);
+        log(`App Version ${response.major}.${response.minor}.${response.patch}`);
+        log(`Device Locked: ${response.deviceLocked}`);
+        log(`Test mode: ${response.testMode}`);
 
-        response = await await app.setSlot(SLOT, "0000000000000000", PATH_CLEAR);
+        response = await await app.setSlot(SLOT, "0000000000000000", PATH_CLEAR, 0x0201);
         if (response.returnCode !== FlowApp.ErrorCode.NoError) {
-            console.log(`Error [${response.returnCode}] ${response.errorMessage}`);
+            log(`Error [${response.returnCode}] ${response.errorMessage}`);
             return;
         }
 
-        console.log("Response received!");
-        console.log("Full response:");
-        console.log(response);
+        log("Response received!");
+        log("Full response:");
+        log(response);
     } finally {
         if (transport) transport.close();
     }
 };
 
-export const showAddressAndPubKey = async (path = LEGACY_PATH_ADDRESS, sign_algo = 0x03, hash_algo = 0x01) => {
-    console.log("LEDGER.showAddress")
+export const showAddressAndPubKey = async (path = LEGACY_PATH_ADDRESS, cryptoOptions = 0x0201) => {
+    log("LEDGER.showAddress")
 
     const transport = await getTransport();
     
     try {
         const app = new FlowApp(transport);
 
-        let response = await app.showAddressAndPubKey(path, sign_algo, hash_algo);
-        console.log(`App Version ${response.major}.${response.minor}.${response.patch}`);
-        console.log(`Device Locked: ${response.deviceLocked}`);
-        console.log(`Test mode: ${response.testMode}`);
+        let response = await app.showAddressAndPubKey(path, cryptoOptions);
+        log(`App Version ${response.major}.${response.minor}.${response.patch}`);
+        log(`Device Locked: ${response.deviceLocked}`);
+        log(`Test mode: ${response.testMode}`);
 
-        console.log("Response received!");
-        console.log("Full response:");
-        console.log(response);
+        log("Response received!");
+        log("Full response:");
+        log(response);
     } finally {
         if (transport) transport.close();
     }
 }
 
-export const signTransaction = async (tx, path = LEGACY_PATH_ADDRESS, sign_algo = 0x03, hash_algo = 0x01) => {
-    console.log("LEDGER.signTransaction")
+export const signTransaction = async (tx, path = LEGACY_PATH_ADDRESS, cryptoOptions = 0x0201) => {
+    log("LEDGER.signTransaction")
 
     const transport = await getTransport();
     if (!transport) return;
@@ -254,22 +241,22 @@ export const signTransaction = async (tx, path = LEGACY_PATH_ADDRESS, sign_algo 
         const app = new FlowApp(transport);
 
         let version = await app.getVersion();
-        console.log(`App Version ${version.major}.${version.minor}.${version.patch}`);
-        console.log(`Device Locked: ${version.deviceLocked}`);
-        console.log(`Test mode: ${version.testMode}`);
+        log(`App Version ${version.major}.${version.minor}.${version.patch}`);
+        log(`Device Locked: ${version.deviceLocked}`);
+        log(`Test mode: ${version.testMode}`);
 
         const message = Buffer.from(tx, "hex");
-        console.log("Sending Request..");
-        const response = await app.sign(path, message, sign_algo, hash_algo);
-        console.log('Sign response: ', response);
+        log("Sending Request..");
+        const response = await app.sign(path, message, cryptoOptions);
+        log('Sign response: ', response);
         if (response.returnCode !== FlowApp.ErrorCode.NoError) {
             console.error(`Error [${response.returnCode}] ${response.errorMessage}`);
             return;
         }
 
-        console.log("Response received!");
-        console.log("Full response:");
-        console.log(response);
+        log("Response received!");
+        log("Full response:");
+        log(response);
 
         signature = response.signatureCompact;
     } finally {

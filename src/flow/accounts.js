@@ -116,12 +116,12 @@ export const getNextAvailableAccountKeyPath = async (accounts, accountIndex, net
   return getPath(accountIndex, nextAvailableAccountKeyIndex, network)
 }
 
-export const getLegacyAddressAndPublicKey = async (sign_algo = 0x02, hash_algo = 0x01) => {
-  return await getAddressAndPublicKeyByPath(LEGACY_PATH_ADDRESS, sign_algo, hash_algo)
+export const getLegacyAddressAndPublicKey = async (cryptoOptions = 0x0201) => {
+  return await getAddressAndPublicKeyByPath(LEGACY_PATH_ADDRESS, cryptoOptions)
 }
 
-export const getAddressAndPublicKeyByPath = async (path, sign_algo = 0x02, hash_algo = 0x01) => {
-  const publicKey = await getPublicKeyOnDevice(path, sign_algo, hash_algo)
+export const getAddressAndPublicKeyByPath = async (path, cryptoOptions = 0x0201) => {
+  const publicKey = await getPublicKeyOnDevice(path, cryptoOptions)
   let address = null
   if (publicKey) address = await getAccount(publicKey)
 
@@ -161,7 +161,7 @@ export const getAllAddressAndPublicKeysByPaths = async (network) => {
   while (currentAccountGap < MAX_ACCOUNT_GAP) {
     const currentPath = getPath(accountIndex, keyIndex, network)
 
-    let currentAddressPublicKey = await getAddressAndPublicKeyByPath(currentPath, 0x02, 0x01)
+    let currentAddressPublicKey = await getAddressAndPublicKeyByPath(currentPath, 0x0201)
 
     if (currentAddressPublicKey?.address) {
       currentAccountGap = 0

@@ -102,7 +102,7 @@ export const Authz = ({ location, network = "local" }) => {
           if (signable.voucher) {
             const message = fcl.WalletUtils.encodeMessageFromSignable(signable, fcl.withPrefix(address)).substring(64)
   
-            signature = await signTransaction(message, path, 0x02, 0x01)
+            signature = await signTransaction(message, path, 0x0201)
           }
 
           if (!signature) {
