@@ -1,6 +1,7 @@
 import TransportWebHID from "@ledgerhq/hw-transport-webhid";
 import FlowApp from "@onflow/ledger";
 import * as fcl from "@onflow/fcl";
+import { NETWORKS } from "../common/networks";
 import { log } from "../common/logger";
 
 const SCHEME = 0x301;
@@ -10,7 +11,7 @@ const SLOT = 0;
 
 const errorCodeEmptyBuffer = 0x6982;
 export const getPath = (accountIndex, keyIndex, network) => {
-    return `m/44'/${network === "mainnet" ? "539'" : "1'"}/${accountIndex}'/0/${keyIndex}`
+    return `m/44'/${network === NETWORKS.MAINNET ? "539'" : "1'"}/${accountIndex}'/0/${keyIndex}`
 } 
 
 const getTransport = async () => {

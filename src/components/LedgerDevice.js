@@ -218,12 +218,6 @@ const LedgerDevice = ({
 
         let selectedAccountAddressFromHardwareAPI = await getAccount(selectedAccount.publicKey);
 
-        // console.log(
-        //   "existingAddressOnDevice=", existingAddressOnDevice,
-        //   " selectedAccountAddressFromHardwareAPI=", selectedAccountAddressFromHardwareAPI,
-        //   " existingAddressOnDevice=", existingAddressOnDevice,
-        // )
-
         if (
           existingAddressOnDevice &&
           selectedAccountAddressFromHardwareAPI &&
@@ -231,7 +225,7 @@ const LedgerDevice = ({
         ) {
           try {
             setMessage("Change in public key detected. Verify the corresponding address on your device.")
-            await setAddressOnDevice(selectedAccountAddressFromHardwareAPI);
+            await setAddressOnDevice(selectedAccountAddressFromHardwareAPI, selectedAccount.path);
             existingAddressOnDevice = selectedAccountAddressFromHardwareAPI
             setMessage(null)
           } catch (e) {
