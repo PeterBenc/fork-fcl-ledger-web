@@ -44,7 +44,7 @@ const StyledErrorMesssage = styled.div`
 `
 
 const DEFAULT_MESSAGE = "Please connect and unlock your Ledger device, open the Flow app and then press start."
-const ADDRESS_MISMATCH_MESSAGE = 
+const ADDRESS_MISMATCH_MESSAGE =
 <StyledErrorMesssage>
   The Flow account saved to your Ledger device does not match the account that is expected by the transaction.
   <br/><br/>
@@ -76,7 +76,7 @@ export const Authz = ({ location, network = "local" }) => {
 
   useEffect(() => {
       (async function getAddress() {
-          if (!signable) return;          
+          if (!signable) return;
           if (!account) return;
 
           const { address, publicKey, path } = account;
@@ -107,20 +107,20 @@ export const Authz = ({ location, network = "local" }) => {
             //   payload.delete(voucher.payer)
             //   return Array.from(payload).map(fcl.withPrefix)
             // }
-            
+
             // const findEnvelopeSigners = (voucher) => {
             //   // Envelope Signers Are: (payer)
             //   let envelope = new Set([voucher.payer])
             //   return Array.from(envelope).map(fcl.withPrefix)
             // }
-  
+
             // let payloadSigners = findPayloadSigners(signable.voucher)
             // let envelopeSigners = findEnvelopeSigners(signable.voucher)
 
-  
+
             // const isPayloadSigner = payloadSigners.includes(fcl.withPrefix(address))
             // const isEnvelopeSigner = envelopeSigners.includes(fcl.withPrefix(address))
-  
+
             // if (!isPayloadSigner && !isEnvelopeSigner) {
             //   setMessage(ADDRESS_MISMATCH_MESSAGE)
             //   setAccount(null)
@@ -161,6 +161,6 @@ export const Authz = ({ location, network = "local" }) => {
           handleCancel={handleCancel} 
         />
         <StyledMessageWrapper>{ message && <StyledMessage>{message}</StyledMessage> }</StyledMessageWrapper>
-      </StyledContainer>    
+      </StyledContainer>
   )
 }
