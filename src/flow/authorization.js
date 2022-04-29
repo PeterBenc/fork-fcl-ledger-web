@@ -1,5 +1,6 @@
 import * as fcl from "@onflow/fcl";
 import { getAddressAndPublicKey, signTransaction } from "../ledger/ledger.js";
+import { log } from "../common/logger";
 
 // current cadded AuthAccount constructor (what you use to create an account on flow)
 // requires a public key to be in a certain format. That format is an rlp encoded value
@@ -21,7 +22,7 @@ export const authorization = async (account = {}) => {
   // const {publicKey, address, returnCode, errorMessage }
 
   const deviceAccountInfo = await getAddressAndPublicKey();
-  console.log(deviceAccountInfo);
+  log(deviceAccountInfo);
 
   if (deviceAccountInfo.returnCode !== 0x9000) {
     console.error("Failure retrieving address/public key from ledger device");
@@ -34,7 +35,7 @@ export const authorization = async (account = {}) => {
   // Determine key index and sequence number from chain
   var getAccountResponse = await fcl.send(fcl.getAccount(deviceAccountInfo.address));
   var getAccountData = await fcl.decode(getAccountResponse);
-  console.log(getAccountData);
+  log(getAccountData);
 
   // TODO: Determine keyId and sequence number based on public key
 

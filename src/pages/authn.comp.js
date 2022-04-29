@@ -6,6 +6,7 @@ import {getKeyIdForKeyByAccountAddress} from "../flow/accounts";
 import LedgerDevice from '../components/LedgerDevice';
 
 const StyledContainer = styled.div`
+  width: 100%;
   min-height: 20rem;
   display: flex;
   flex-direction: column;
@@ -56,6 +57,10 @@ export const Authn = ({ network = "local" }) => {
 
             const keyId = await getKeyIdForKeyByAccountAddress(address, publicKey)
 
+            console.log("address =>> ", address)
+            console.log("publicKey =>> ", publicKey)
+            console.log("keyId =>> ", keyId)
+
             fcl.WalletUtils.approve({
               f_type: "AuthnResponse",
               f_vsn: "1.0.0",
@@ -75,7 +80,9 @@ export const Authn = ({ network = "local" }) => {
                     keyId: keyId,
                   },
                   data: {},
-                  params: {}
+                  params: {
+                    address: fcl.withPrefix(address)
+                  }
                 },
                 {
                   f_type: "Service",
@@ -105,7 +112,12 @@ export const Authn = ({ network = "local" }) => {
     return (
         <StyledContainer>
             {process.env.REACT_APP_ALERT_MESSAGE && <StyledAlertMessage dangerouslySetInnerHTML={{__html: process.env.REACT_APP_ALERT_MESSAGE}}/>}
-            <LedgerDevice account={account} onGetAccount={account => setAccount(account)} handleCancel={handleCancel} />
+            <LedgerDevice
+              account={account}
+              network={network}
+              onGetAccount={setAccount}
+              handleCancel={handleCancel}
+            />
         </StyledContainer>    
     )
 }

@@ -1,15 +1,23 @@
 import React, {useEffect, useState} from 'react'
 import styled from 'styled-components'
 import * as fcl from "@onflow/fcl"
+import { log } from "../common/logger"
 import semver from "semver"
-import FlowLogo from "../images/logo.svg";
-import {getAccount, createAccount} from "../flow/accounts";
+import FlowLogo from "../images/logo.svg"
+import Logomark from "../images/logomark.svg"
+import {getAccount, createAccount} from "../flow/accounts"
 import {
   getVersion as getVersionOnDevice,
-  getAddressAndPublicKey as getAddressAndPublicKeyOnDevice, 
+  getAddressAndPublicKeys as getAddressAndPublicKeysOnDevice, 
   setAddress as setAddressOnDevice,
   clearAddress as clearAddressOnDevice,
-} from "../ledger/ledger.js";
+  getAddress as getAddressOnDevice,
+  getPublicKey as getPublicKeyOnDevice,
+} from "../ledger/ledger.js"
+import {
+  getAllAddressAndPublicKeysByPaths,
+  getNextAvailableAccountPath
+} from "../flow/accounts.js"
 import {
   CONNECTING_MESSAGE,
   CONNECTION_ERROR_MESSAGE,
@@ -17,6 +25,14 @@ import {
 } from "../common/messages.js"
 import {
   Button,
+  OutlineButton,
+  Balance,
+  AccountList,
+  AccountItem,
+  AccountItemAddress,
+  AccountItemBalance,
+  Currency,
+  HorizontalSpacer,
   Column,
   Centered,
   Row,
@@ -25,6 +41,7 @@ import {
   Text,
   Error,
   Message,
+  LogoSpinner,
 } from "../common/common.js"
 
 const ViewDebug = ({ clearAddress }) => {
@@ -46,36 +63,72 @@ const ViewStart = ({ setHasUserStarted, clearAddress, debug }) => {
   );
 };
 
-const ViewGetAddress = ({ setNewAddress, isCreatingAccount, setIsCreatingAccount, setMessage, publicKey }) => {
+const ViewAddressSelector = ({
+  accountsAndPublicKeys,
+  setSelectedAccount,
+  setIsCreatingAccount,
+  setAddressOnDevice,
+  setMessage,
+  setAccountsAndPublicKeys,
+  isCreatingAccount,
+  network
+}) => {
 
   const createNewAccount = async () => {
     setIsCreatingAccount(true);
     setMessage("Please wait a few moments. The account creation request is being processed.")
-    const address = await createAccount(publicKey);
-    setNewAddress(address);
+
+    const nextAvailablePath = await getNextAvailableAccountPath(accountsAndPublicKeys, network)
+    const nextAvailablePublicKey = await getPublicKeyOnDevice(nextAvailablePath, 0x0201)
+
+    const address = await createAccount(nextAvailablePublicKey)
+
+    setAccountsAndPublicKeys(null)
+    setMessage(null)
+    setIsCreatingAccount(false)
   };
 
   return (
     <Centered>
-      { !isCreatingAccount && <Message>The public key on this device is not yet paired with a Flow account. Click the button below to create a new Flow account for this public key.</Message> }
-      { !isCreatingAccount && <Button onClick={() => createNewAccount()}>Create New Account</Button> }
+      <AccountList>
+        { !isCreatingAccount && accountsAndPublicKeys && accountsAndPublicKeys.map(acct => (
+          <AccountItem onClick={() => setSelectedAccount(acct)} key={acct.address}>
+            <AccountItemAddress>{fcl.withPrefix(acct.address)}</AccountItemAddress>
+            <AccountItemBalance>{acct.balance / 10**8}<Currency>FLOW</Currency></AccountItemBalance>
+          </AccountItem>
+        ))}
+      </AccountList>
+      { !isCreatingAccount && accountsAndPublicKeys && accountsAndPublicKeys.length > 0 && <HorizontalSpacer />}
+      { !isCreatingAccount && <Button onClick={createNewAccount}>Create New Account</Button> }
     </Centered>
   );
-};
+}
 
-const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
+const LedgerDevice = ({
+  account,
+  authnAddress = null,
+  network,
+  onGetAccount,
+  handleCancel,
+  debug
+}) => {
   const [hasUserStarted, setHasUserStarted] = useState(false);
   const [initialConnectingToLedger, setInitialConnectingToLedger] = useState(false)
+
   const [address, setAddress] = useState(null);
   const [publicKey, setPublicKey] = useState(null);
+
+  const [accountsAndPublicKeys, setAccountsAndPublicKeys] = useState(null)
+  const [selectedAccount, setSelectedAccount] = useState(null)
+
   const [message, setMessage] = useState(null);
   const [error, setError] = useState(null);
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
 
-  const setNewAddress = async (address, publicKey) => {
+  const setNewAddress = async (address, publicKey, path) => {
     try {
       setMessage("Please verify the new address on your device.")
-      await setAddressOnDevice(address);
+      await setAddressOnDevice(address, path);
       setMessage(null);
     } catch (e) {
       setIsCreatingAccount(false);
@@ -101,12 +154,14 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
     (async function getAccountFromDevice() {
         if (account) return;
         if (!hasUserStarted) return;
-        if (address || publicKey) return;
+        if (isCreatingAccount) return;
         
         setInitialConnectingToLedger(true)
 
         try {
-          let appVersion = await getVersionOnDevice();
+          let appVersion = await getVersionOnDevice()
+
+          log("appVersion", appVersion)
 
           if (!(semver.gte(appVersion, process.env.REACT_APP_FLOW_APP_VERSION))) {
             setHasUserStarted(false)
@@ -116,7 +171,7 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
           }
  
           if (error === CONNECTION_ERROR_MESSAGE) {
-            setError(null);
+            setError(null)
           }
         } catch(e) {
           console.error(e)
@@ -128,54 +183,88 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
         
         setInitialConnectingToLedger(false)
 
-        let existingAddress;
-        let existingPublicKey;
+        let existingAddressOnDevice
         try {
-          let { address, publicKey } = await getAddressAndPublicKeyOnDevice();
-          existingAddress = address;
-          existingPublicKey = publicKey;
+          existingAddressOnDevice = await getAddressOnDevice()
+        } catch(e) {}
 
-          if (error === CONNECTION_ERROR_MESSAGE) {
-            setError(null);
+        let foundAccountsAndPublicKeys;
+        if (!accountsAndPublicKeys) {
+          try {
+            foundAccountsAndPublicKeys = await getAllAddressAndPublicKeysByPaths(network);
+
+            if (error === CONNECTION_ERROR_MESSAGE) {
+              setError(null);
+            }
+
+            if (foundAccountsAndPublicKeys) setAccountsAndPublicKeys(foundAccountsAndPublicKeys)
+          } catch(e) {
+            console.error(e)
+            setHasUserStarted(false)
+            setError(CONNECTION_ERROR_MESSAGE)
+            return
           }
-        } catch(e) {
-          console.error(e)
-          setHasUserStarted(false)
-          setError(CONNECTION_ERROR_MESSAGE)
+        }
+
+        if (!selectedAccount && !authnAddress) {
           return
         }
 
-        let addressFromHardwareAPI = await getAccount(existingPublicKey);
-      
-        if (existingAddress && addressFromHardwareAPI && existingAddress !== addressFromHardwareAPI) {
+        if (!selectedAccount && authnAddress) {
+          let foundAccount = foundAccountsAndPublicKeys.find(acct => fcl.withPrefix(acct.address) === fcl.withPrefix(authnAddress))
+          setSelectedAccount(foundAccount)
+          return;
+        }
+
+        let selectedAccountAddressFromHardwareAPI = await getAccount(selectedAccount.publicKey);
+
+        if (
+          existingAddressOnDevice &&
+          selectedAccountAddressFromHardwareAPI &&
+          existingAddressOnDevice !== selectedAccountAddressFromHardwareAPI
+        ) {
           try {
             setMessage("Change in public key detected. Verify the corresponding address on your device.")
-            await setAddressOnDevice(addressFromHardwareAPI);
-            existingAddress = addressFromHardwareAPI
+            await setAddressOnDevice(selectedAccountAddressFromHardwareAPI, selectedAccount.path);
+            existingAddressOnDevice = selectedAccountAddressFromHardwareAPI
             setMessage(null)
           } catch (e) {
             handleCancel()
           }
         }
   
-        if (existingAddress && existingAddress === addressFromHardwareAPI) {
-          onGetAccount({ address: existingAddress, publicKey: existingPublicKey });
-          setAddress(existingAddress);
+        if (existingAddressOnDevice && existingAddressOnDevice === selectedAccountAddressFromHardwareAPI) {
+          onGetAccount({
+            address: existingAddressOnDevice,
+            publicKey: selectedAccount.publicKey,
+            path: selectedAccount.path,
+          })
+          setAddress(existingAddressOnDevice)
         }
 
-        if (!existingAddress && addressFromHardwareAPI) {
-          onGetAccount({ address: addressFromHardwareAPI, publicKey: existingPublicKey });
-          setAddress(addressFromHardwareAPI);
-        }
+        if (!existingAddressOnDevice && selectedAccountAddressFromHardwareAPI) {
+          try {
+            setMessage("Change in stored address detected. Verify the corresponding address on your device.")
+            await setAddressOnDevice(selectedAccountAddressFromHardwareAPI, selectedAccount.path);
+            setMessage(null)
+          } catch (e) {
+            handleCancel()
+          }
 
-        setPublicKey(existingPublicKey);
+          onGetAccount({ 
+            address: selectedAccountAddressFromHardwareAPI,
+            publicKey: selectedAccount.publicKey,
+            path: selectedAccount.path,
+          })
+          setAddress(selectedAccountAddressFromHardwareAPI)
+        }
 
     })();
-  }, [hasUserStarted, address, publicKey, account, onGetAccount]);
+  }, [hasUserStarted, address, publicKey, account, onGetAccount, selectedAccount, isCreatingAccount])
 
   return (
     <Column>
-      <Centered>
+      <Centered style={{ height: "4rem" }}>
         <Row><LedgerImage src={FlowLogo} /><LedgerTitle>Ledger</LedgerTitle></Row>
         <Text>{address && `Address: ${fcl.withPrefix(address)}`}</Text>
       </Centered>
@@ -187,14 +276,34 @@ const LedgerDevice = ({ account, onGetAccount, handleCancel, debug }) => {
               clearAddress={() => clearAddressOnDevice()}
               debug={debug} />
         }
+        
         {
-          hasUserStarted && publicKey && !address && 
-            <ViewGetAddress isCreatingAccount={isCreatingAccount} setIsCreatingAccount={setIsCreatingAccount} setNewAddress={(address) => setNewAddress(address, publicKey)} setMessage={setMessage} publicKey={publicKey} />
+          hasUserStarted && accountsAndPublicKeys && !isCreatingAccount && !selectedAccount && 
+            <Text>Please select an account to login.</Text>
         }
+
         {
-          hasUserStarted && !initialConnectingToLedger && !address && !publicKey &&
-            <Text>Retrieving Your Flow Account</Text>
+          hasUserStarted && accountsAndPublicKeys && !selectedAccount && 
+            <ViewAddressSelector 
+              accountsAndPublicKeys={accountsAndPublicKeys}
+              isCreatingAccount={isCreatingAccount}
+              setIsCreatingAccount={setIsCreatingAccount}
+              setSelectedAccount={setSelectedAccount}s
+              setAddressOnDevice={setNewAddress}
+              setAccountsAndPublicKeys={setAccountsAndPublicKeys}
+              setMessage={setMessage} 
+              network={network}
+            />
         }
+
+        {
+          hasUserStarted && !initialConnectingToLedger && !accountsAndPublicKeys &&
+            <>
+              <Text>Discovering your Flow accounts.<br/>This may take some time.</Text>
+              <LogoSpinner src={Logomark} />
+            </>
+        }
+
         {
           hasUserStarted && initialConnectingToLedger && !address && CONNECTING_MESSAGE
         }

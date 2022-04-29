@@ -8,6 +8,7 @@ import {LocalConfig} from "./config/local.config"
 import {CanarynetConfig} from "./config/canarynet.config"
 import {TestnetConfig} from "./config/testnet.config"
 import {MainnetConfig} from "./config/mainnet.config"
+import {NETWORKS} from "./common/networks"
 import {FaTimes} from "react-icons/fa"
 import {Authn} from "./pages/authn.comp"
 import {Authz} from "./pages/authz.comp"
@@ -88,26 +89,25 @@ ReactDOM.render(
     <Router>
       <Wrapper onClick={handleCancel}>
         <Inner onClick={e => e.stopPropagation()}>
+          <CloseIcon onClick={handleCancel}/>
+          <Route path="/local" component={LocalConfig} />
+          <Route path="/canarynet" component={CanarynetConfig} />
+          <Route path="/testnet" component={TestnetConfig} />
+          <Route path="/mainnet" component={MainnetConfig} />
           <Switch>
-            <Route path="/showkey" component={ShowKey} exact />
-            <div>
-              <CloseIcon onClick={handleCancel}/>
-              <Route path="/local" component={LocalConfig} />
-              <Route path="/canarynet" component={CanarynetConfig} />
-              <Route path="/testnet" component={TestnetConfig} />
-              <Route path="/mainnet" component={MainnetConfig} />
-              <Switch>
-                <Route path="/local/authn" component={props => <Authn {...props} network="local" debug={DEBUG} />} exact />
-                <Route path="/canarynet/authn" component={props => <Authn {...props} network="canarynet" debug={DEBUG} />} exact />
-                <Route path="/testnet/authn" component={props => <Authn {...props} network="testnet" debug={DEBUG} />} exact />
-                <Route path="/mainnet/authn" component={props => <Authn {...props} network="mainnet" debug={DEBUG} />} exact />
-                <Route path="/local/authz" component={props => <Authz {...props} network="local" debug={DEBUG} />} exact />
-                <Route path="/canarynet/authz" component={props => <Authz {...props} network="canarynet" debug={DEBUG} />} exact />
-                <Route path="/testnet/authz" component={props => <Authz {...props} network="testnet" debug={DEBUG} />} exact />
-                <Route path="/mainnet/authz" component={props => <Authz {...props} network="mainnet" debug={DEBUG} />} exact />
-                <Route component={FourOhFour} />
-              </Switch>
-            </div>
+            <Route path="/local/showkey" component={props => <ShowKey {...props} network={NETWORKS.LOCAL} />} exact />
+            <Route path="/canarynet/showkey" component={props => <ShowKey {...props} network={NETWORKS.CANARYNET} />} exact />
+            <Route path="/testnet/showkey" component={props => <ShowKey {...props} network={NETWORKS.TESTNET} />} exact />
+            <Route path="/mainnet/showkey" component={props => <ShowKey {...props} network={NETWORKS.MAINNET} />} exact />
+            <Route path="/local/authn" component={props => <Authn {...props} network={NETWORKS.LOCAL} debug={DEBUG} />} exact />
+            <Route path="/canarynet/authn" component={props => <Authn {...props} network={NETWORKS.CANARYNET} debug={DEBUG} />} exact />
+            <Route path="/testnet/authn" component={props => <Authn {...props} network={NETWORKS.TESTNET} debug={DEBUG} />} exact />
+            <Route path="/mainnet/authn" component={props => <Authn {...props} network={NETWORKS.MAINNET} debug={DEBUG} />} exact />
+            <Route path="/local/authz" component={props => <Authz {...props} network={NETWORKS.LOCAL} debug={DEBUG} />} exact />
+            <Route path="/canarynet/authz" component={props => <Authz {...props} network={NETWORKS.CANARYNET} debug={DEBUG} />} exact />
+            <Route path="/testnet/authz" component={props => <Authz {...props} network={NETWORKS.TESTNET} debug={DEBUG} />} exact />
+            <Route path="/mainnet/authz" component={props => <Authz {...props} network={NETWORKS.MAINNET} debug={DEBUG} />} exact />
+            <Route component={FourOhFour} />
           </Switch>
         </Inner>
       </Wrapper>
