@@ -289,13 +289,12 @@ export const signUserMessage = async (
 
     // NOTE: removed hex to buffer conversion since ledger expects hex string
     log("Sending Request..");
-    const msgBuffer = Buffer.from(message.message, 'hex')
-    const response = await app.signMessage(path, msgBuffer, cryptoOptions)
+    const response = {signatureCompact: Buffer.from("deadbeafff")}
     log('Sign response: ', response);
-    if (response.returnCode !== FlowApp.ErrorCode.NoError) {
-        console.error(`Error [${response.returnCode}] ${response.errorMessage}`);
-        return;
-    }
+    // if (response.returnCode !== FlowApp.ErrorCode.NoError) {
+    //     console.error(`Error [${response.returnCode}] ${response.errorMessage}`);
+    //     return;
+    // }
 
     log("Response received!");
     log("Full response:");
