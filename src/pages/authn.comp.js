@@ -87,6 +87,25 @@ export const Authn = ({ network = "local" }) => {
                 {
                   f_type: "Service",
                   f_vsn: "1.0.0",
+                  // taken from https://github.com/onflow/fcl-js/blob/b1aef3b393c2744a8c47839cc953cd4e71686274/packages/fcl/src/current-user/index.js#L327
+                  type: "user-signature",
+                  method: "IFRAME/RPC",
+                  uid: "fcl-ledger-user-message",
+                  endpoint: `${window.location.origin}/${network}/user-signature`,
+                  identity: {
+                    f_type: "Identity",
+                    f_vsn: "1.0.0",
+                    address: fcl.withPrefix(address),
+                    keyId: keyId,
+                  },
+                  data: {},
+                  params: {
+                    address: fcl.withPrefix(address),
+                  },
+                },
+                {
+                  f_type: "Service",
+                  f_vsn: "1.0.0",
                   type: "authn",
                   method: "DATA",
                   uid: "fcl-ledger-authn",

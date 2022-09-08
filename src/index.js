@@ -13,6 +13,7 @@ import {FaTimes} from "react-icons/fa"
 import {Authn} from "./pages/authn.comp"
 import {Authz} from "./pages/authz.comp"
 import {ShowKey} from "./pages/showkey.comp"
+import {SignUserMessage} from "./pages/signUserMessage"
 
 window.fcl = fcl
 window.types = types
@@ -107,6 +108,50 @@ ReactDOM.render(
             <Route path="/canarynet/authz" component={props => <Authz {...props} network={NETWORKS.CANARYNET} debug={DEBUG} />} exact />
             <Route path="/testnet/authz" component={props => <Authz {...props} network={NETWORKS.TESTNET} debug={DEBUG} />} exact />
             <Route path="/mainnet/authz" component={props => <Authz {...props} network={NETWORKS.MAINNET} debug={DEBUG} />} exact />
+            <Route
+              path="/local/user-signature"
+              component={(props) => (
+                <SignUserMessage
+                  {...props}
+                  network={NETWORKS.LOCAL}
+                  debug={DEBUG}
+                />
+              )}
+              exact
+            />
+            <Route
+              path="/canarynet/user-signature"
+              component={(props) => (
+                <SignUserMessage
+                  {...props}
+                  network={NETWORKS.CANARYNET}
+                  debug={DEBUG}
+                />
+              )}
+              exact
+            />
+            <Route
+              path="/testnet/user-signature"
+              component={(props) => (
+                <SignUserMessage
+                  {...props}
+                  network={NETWORKS.TESTNET}
+                  debug={DEBUG}
+                />
+              )}
+              exact
+            />
+            <Route
+              path="/mainnet/user-signature"
+              component={(props) => (
+                <SignUserMessage
+                  {...props}
+                  network={NETWORKS.MAINNET}
+                  debug={DEBUG}
+                />
+              )}
+              exact
+            />
             <Route component={FourOhFour} />
           </Switch>
         </Inner>

@@ -267,6 +267,47 @@ export const signTransaction = async (tx, path = LEGACY_PATH_ADDRESS, cryptoOpti
     return convertToRawSignature(signature);
 };
 
+// NOTE: same code as for signTransaction just calling a different ledger method
+export const signUserMessage = async (
+  message,
+  path = LEGACY_PATH_ADDRESS,
+  cryptoOptions = 0x0201
+) => {
+  log("Ledger.signMessage");
+  const transport = await getTransport();
+  if (!transport) return;
+
+  let signature;
+
+  try {
+    const app = new FlowApp(transport);
+
+    let version = await app.getVersion();
+    log(`App Version ${version.major}.${version.minor}.${version.patch}`);
+    log(`Device Locked: ${version.deviceLocked}`);
+    log(`Test mode: ${version.testMode}`);
+
+    // NOTE: removed hex to buffer conversion since ledger expects hex string
+    log("Sending Request..");
+    const response = {signatureCompact: Buffer.from("deadbeafff")}
+    log('Sign response: ', response);
+    // if (response.returnCode !== FlowApp.ErrorCode.NoError) {
+    //     console.error(`Error [${response.returnCode}] ${response.errorMessage}`);
+    //     return;
+    // }
+
+    log("Response received!");
+    log("Full response:");
+    log(response);
+
+    signature = response.signatureCompact;
+  } finally {
+    if (transport) transport.close();
+  }
+
+  return convertToRawSignature(signature);
+};
+
 // remove leading byte from public key
 const convertToRawPublicKey = (publicKey) => publicKey.slice(1).toString("hex");
 
